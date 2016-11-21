@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="TableViews" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <navigationBar contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ay1-EJ-X1O">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="fMJ-J2-0Sl"/>
+                                </constraints>
+                                <items>
+                                    <navigationItem title="Times Tables" id="6gd-QC-uLz"/>
+                                </items>
+                            </navigationBar>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="LJ1-E7-Zgv">
+                                <rect key="frame" x="0.0" y="44" width="375" height="585"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" indentationWidth="10" reuseIdentifier="Cell" id="sbm-Be-DSb">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="sbm-Be-DSb" id="Pmc-aM-P6d">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                                <connections>
+                                    <outlet property="dataSource" destination="BYZ-38-t0r" id="qg6-qi-aKV"/>
+                                    <outlet property="delegate" destination="BYZ-38-t0r" id="gS4-og-d3c"/>
+                                </connections>
+                            </tableView>
+                            <slider opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="10" minValue="1" maxValue="20" translatesAutoresizingMaskIntoConstraints="NO" id="2ku-a2-nsv">
+                                <rect key="frame" x="18" y="637" width="339" height="31"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="05e-yX-RGp"/>
+                                </constraints>
+                                <connections>
+                                    <action selector="changeTableSize:" destination="BYZ-38-t0r" eventType="valueChanged" id="vff-nL-zMV"/>
+                                </connections>
+                            </slider>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="ay1-EJ-X1O" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="topMargin" id="B3Q-jG-RJZ"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="2ku-a2-nsv" secondAttribute="bottom" id="UXX-fr-cbL"/>
+                            <constraint firstItem="LJ1-E7-Zgv" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="-20" id="WRo-u5-z3N"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="LJ1-E7-Zgv" secondAttribute="trailing" constant="-20" id="axC-0H-vA8"/>
+                            <constraint firstItem="2ku-a2-nsv" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="dYU-bp-6Zc"/>
+                            <constraint firstItem="ay1-EJ-X1O" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="-20" id="dcq-fK-uzi"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="ay1-EJ-X1O" secondAttribute="trailing" constant="-20" id="ffd-WT-gHq"/>
+                            <constraint firstItem="LJ1-E7-Zgv" firstAttribute="top" secondItem="ay1-EJ-X1O" secondAttribute="bottom" id="oIH-Ff-fR7"/>
+                            <constraint firstItem="2ku-a2-nsv" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="yR4-gV-lV5"/>
+                        </constraints>
+                    </view>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
+                    <connections>
+                        <outlet property="sliderValue" destination="2ku-a2-nsv" id="sVj-W7-Nfv"/>
+                        <outlet property="tableData" destination="LJ1-E7-Zgv" id="a5A-5v-ddm"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="113.5" y="379.5"/>
+        </scene>
+    </scenes>
+</document>
