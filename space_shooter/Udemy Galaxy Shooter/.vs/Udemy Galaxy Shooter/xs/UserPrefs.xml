@@ -1,0 +1,28 @@
+﻿<Properties StartupConfiguration="{91EEB333-A5B3-6BFF-88C8-B5FB6F445E6A}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Player.cs">
+    <Files>
+      <File FileName="Assets/Scripts/Player.cs" Line="117" Column="2" />
+      <File FileName="Assets/Scripts/Laser_90.cs" Line="15" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="Udemy Galaxy Shooter" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="Scripts" expanded="True">
+                <Node name="Player.cs" selected="True" />
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="dcd477e5-3284-442e-a58e-8d4ad3c3a53e" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>
