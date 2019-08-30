@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Laser_90 : MonoBehaviour
+public class Enemy_base : MonoBehaviour
 {
     // Start is called before the first frame update
-    private float _speed = 8.0f;
+    void Start()
+    {
+        
+    }
 
+    // Update is called once per frame
     void Update()
     {
-        transform.Translate(Vector3.up * _speed * Time.deltaTime);
-        Destroy(this.gameObject, 2.0f);
+        
     }
 }

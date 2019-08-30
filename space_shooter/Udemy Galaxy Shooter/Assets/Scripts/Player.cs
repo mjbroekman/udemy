@@ -21,6 +21,7 @@ public class Player : MonoBehaviour
     private float _minV;
     private float _laserCoolDown;
     private float _curCoolDown;
+    private float _coolDownMult;
 
     // Start is called before the first frame update
     void Start()
@@ -39,8 +40,9 @@ public class Player : MonoBehaviour
         _minV = -5.0f;
 
         // Set the weapon cooldown
-        _laserCoolDown = 0.1f;
+        _laserCoolDown = 0.2f;
         _curCoolDown = 0f;
+        _coolDownMult = 1.0f;
     }
 
     // Update is called once per frame
@@ -111,7 +113,7 @@ public class Player : MonoBehaviour
     void FireLaser()
     {
         Debug.Log("Firing laser");
-        _curCoolDown = Time.time + _laserCoolDown;
+        _curCoolDown = Time.time + (_laserCoolDown * _coolDownMult);
         Instantiate(_pf_laser, transform.position + new Vector3(0, 0.8f, 0), Quaternion.identity);
     }
 }
