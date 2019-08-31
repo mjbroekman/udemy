@@ -12,7 +12,9 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _curSpd;
     [SerializeField]
-    private GameObject _pf_laser;
+    private GameObject _pf_laser; // This is assigned in the Inspector for now
+    [SerializeField]
+    private float _curHealth;
 
     private float _maxSpd;
     private float _minSpd;
@@ -22,20 +24,20 @@ public class Player : MonoBehaviour
     private float _laserCoolDown;
     private float _curCoolDown;
     private float _coolDownMult;
+    private float _maxHealth;
 
-    // Start is called before the first frame update
     void Start()
     {
-        // Set starting position to (0,0,0)
-        transform.position = new Vector3(0, 0, 0);
+        // Set starting position to near the bottom of the screen
+        transform.position = new Vector3(0, -5, 0);
 
         // Set base speed as well as max/min speed
-        _curSpd = 1.0f;
+        _curSpd = 5.0f;
         _maxSpd = 10.0f;
         _minSpd = 0.0f;
 
         // Set screen boundaries
-        _maxH = 11.0f;
+        _maxH = 10.0f;
         _maxV = 1.0f;
         _minV = -5.0f;
 
@@ -43,9 +45,15 @@ public class Player : MonoBehaviour
         _laserCoolDown = 0.2f;
         _curCoolDown = 0f;
         _coolDownMult = 1.0f;
+
+        // Set player health
+        _maxHealth = 10f;
+        _curHealth = _maxHealth;
     }
 
-    // Update is called once per frame
+    /// <summary>
+    /// Cycle through the possible actions in a frame.
+    /// </summary>
     void Update()
     {
         CheckGameSpeed();
@@ -53,7 +61,9 @@ public class Player : MonoBehaviour
         if (Input.GetKey(KeyCode.Space) && Time.time > _curCoolDown) { FireLaser(); }
     }
 
-    // Calculate the new speed
+    /// <summary>
+    /// Take user input to change the speed of the game
+    /// </summary>
     void CheckGameSpeed()
     {
         bool sInputUp = Input.GetKey(KeyCode.RightBracket);
@@ -72,7 +82,9 @@ public class Player : MonoBehaviour
         }
     }
 
-    // All movement stuff is handled in here
+    /// <summary>
+    /// Take user input to move the player around the 2.5d space
+    /// </summary>
     void CalculateMovement()
     {
         // Get player input wasd/arrows
@@ -109,11 +121,28 @@ public class Player : MonoBehaviour
         }
     }
 
-    // Fire the laser
+    /// <summary>
+    /// Fire the main laser. _pf_laser is assigned in the Inspector.
+    /// </summary>
     void FireLaser()
     {
         Debug.Log("Firing laser");
         _curCoolDown = Time.time + (_laserCoolDown * _coolDownMult);
         Instantiate(_pf_laser, transform.position + new Vector3(0, 0.8f, 0), Quaternion.identity);
+    }
+
+    /// <summary>
+    /// Apply damage from hitting something, like an enemy.
+    /// </summary>
+    /// <param name="damage"></param>
+    void TakeDamage(float damage)
+    {
+        Debug.Log("Took " + damage + " damage from that hit.");
+        _curHealth -= damage;
+        if (_curHealth <= 0f)
+        {
+            Debug.Log("I'm going down! I'm hit! It's all over for me!");
+            Destroy(this.gameObject, 0.5f);
+        }
     }
 }
