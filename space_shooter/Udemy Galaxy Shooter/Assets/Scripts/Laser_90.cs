@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class Laser_90 : MonoBehaviour
 {
-    // Start is called before the first frame update
+    [SerializeField]
+    private int power = 2;
+
     private float _speed = 8.0f;
-    public float power = 1.0f;
 
     /// <summary>
     /// Move up from the player to the top of the screen
@@ -22,7 +23,7 @@ public class Laser_90 : MonoBehaviour
     /// Return the strength of the laser
     /// </summary>
     /// <returns></returns>
-    float GetPower()
+    public int GetPower()
     {
         return power;
     }

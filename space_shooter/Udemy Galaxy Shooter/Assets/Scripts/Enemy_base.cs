@@ -8,12 +8,12 @@ public class Enemy_base : MonoBehaviour
     private float _curSpd;
 
     [SerializeField]
-    private float _maxLife = 10.0f;
+    private int _maxLife = 10;
 
     private float _maxH = 9.5f;
     private float _maxV = 6.5f;
     private float _randomX;
-    private float _curLife;
+    private int _curLife;
 
     // Start is called before the first frame update
     void Start()
@@ -21,7 +21,7 @@ public class Enemy_base : MonoBehaviour
         _randomX = Random.Range(-_maxH, _maxH);
         transform.position = new Vector3(_randomX, _maxV, 0.0f);
         _curSpd = 2.0f + Time.time / 36;
-        _curLife = 0.1f + Time.time / 36;
+        _curLife = 1 + (int)(Time.time / 36);
         if (_curLife > _maxLife) { _curLife = _maxLife; }
     }
 
@@ -49,29 +49,32 @@ public class Enemy_base : MonoBehaviour
         Debug.Log("Hit " + _what);
         if (_what == "Player")
         {
-            other.transform.SendMessage("TakeDamage", _curSpd);
+            Player player = other.transform.GetComponent<Player>();
+            if (player != null) { player.TakeDamage((int)_curSpd); }
+            // apply the maximum amount of damage I will ever be able to take.
             TakeDamage(_maxLife);
         }
         else if (_what == "Laser")
         {
-            // change this to get the strength of the laser
-            float _damage = 1f;
+            Laser_90 laser = other.transform.GetComponent<Laser_90>();
+            int damage = 0;
+
+            if (laser != null) { damage = laser.GetPower(); }
+
             Destroy(other.gameObject);
-            TakeDamage(_damage);
+            TakeDamage(damage);
         }
-        // if we hit the player, damage player, destroy us
-        // if we hit the laser, destroy the laser, then do something to us
     }
 
     /// <summary>
     /// Apply damage to the enemy.
     /// </summary>
     /// <param name="damage"></param>
-    void TakeDamage(float damage)
+    void TakeDamage(int damage)
     {
         _curLife -= damage;
         Debug.Log(this.transform.name + " took " + damage + " damage from hit.");
-        if (_curLife <= 0f)
+        if (_curLife <= 0)
         {
             Destroy(this.gameObject);
         }

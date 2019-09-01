@@ -14,7 +14,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject _pf_laser; // This is assigned in the Inspector for now
     [SerializeField]
-    private float _curHealth;
+    private int _curHealth;
 
     private float _maxSpd;
     private float _minSpd;
@@ -24,7 +24,7 @@ public class Player : MonoBehaviour
     private float _laserCoolDown;
     private float _curCoolDown;
     private float _coolDownMult;
-    private float _maxHealth;
+    private int _maxHealth;
 
     void Start()
     {
@@ -47,7 +47,7 @@ public class Player : MonoBehaviour
         _coolDownMult = 1.0f;
 
         // Set player health
-        _maxHealth = 10f;
+        _maxHealth = 10;
         _curHealth = _maxHealth;
     }
 
@@ -95,14 +95,6 @@ public class Player : MonoBehaviour
         transform.Translate(new Vector3(hInput, vInput, 0) * _curSpd * Time.deltaTime);
 
         // Check to see if the new player position is 'outside' the bounds and warp to other side if they are
-        //if (transform.position.y > _maxV)
-        //{
-        //    transform.position = new Vector3(transform.position.x, -_maxV, 0);
-        //}
-        //else if (transform.position.y < -_maxV)
-        //{
-        //    transform.position = new Vector3(transform.position.x, _maxV, 0);
-        //}
         if (transform.position.y > _maxV)
         {
             transform.position = new Vector3(transform.position.x, _maxV, 0);
@@ -135,11 +127,11 @@ public class Player : MonoBehaviour
     /// Apply damage from hitting something, like an enemy.
     /// </summary>
     /// <param name="damage"></param>
-    void TakeDamage(float damage)
+    public void TakeDamage(int damage)
     {
-        Debug.Log("Took " + damage + " damage from that hit.");
+        Debug.Log("Player took " + damage + " damage from that hit.");
         _curHealth -= damage;
-        if (_curHealth <= 0f)
+        if (_curHealth <= 0)
         {
             Debug.Log("I'm going down! I'm hit! It's all over for me!");
             Destroy(this.gameObject, 0.5f);
