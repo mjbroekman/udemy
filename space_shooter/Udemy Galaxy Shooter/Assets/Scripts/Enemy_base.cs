@@ -56,7 +56,7 @@ public class Enemy_base : MonoBehaviour
         }
         else if (_what == "Laser")
         {
-            Laser_90 laser = other.transform.GetComponent<Laser_90>();
+            Laser laser = other.transform.GetComponent<Laser>();
             int damage = 0;
 
             if (laser != null) { damage = laser.GetPower(); }

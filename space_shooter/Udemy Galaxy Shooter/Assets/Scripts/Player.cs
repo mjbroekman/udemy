@@ -26,6 +26,8 @@ public class Player : MonoBehaviour
     private float _coolDownMult;
     private int _maxHealth;
 
+    private SpawnManager _spawnManager;
+
     void Start()
     {
         // Set starting position to near the bottom of the screen
@@ -49,6 +51,13 @@ public class Player : MonoBehaviour
         // Set player health
         _maxHealth = 10;
         _curHealth = _maxHealth;
+
+        // Get the spawn Manager
+        _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
+        if (_spawnManager == null)
+        {
+            Debug.LogError("Houston, we have a problem. There is no Spawn_Manager in the scene.");
+        }
     }
 
     /// <summary>
@@ -133,6 +142,7 @@ public class Player : MonoBehaviour
         _curHealth -= damage;
         if (_curHealth <= 0)
         {
+            _spawnManager.OnPlayerDeath();
             Debug.Log("I'm going down! I'm hit! It's all over for me!");
             Destroy(this.gameObject, 0.5f);
         }
