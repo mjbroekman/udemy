@@ -43,7 +43,7 @@ public class Enemy_base : MonoBehaviour
     /// Handle collisions
     /// </summary>
     /// <param name="other"></param>
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         string _what = other.tag;
         Debug.Log("Hit " + _what);

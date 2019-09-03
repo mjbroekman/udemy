@@ -31,7 +31,7 @@ public class Player : MonoBehaviour
     void Start()
     {
         // Set starting position to near the bottom of the screen
-        transform.position = new Vector3(0, -5, 0);
+        transform.position = new Vector3(0, -3, 0);
 
         // Set base speed as well as max/min speed
         _curSpd = 5.0f;
@@ -40,8 +40,8 @@ public class Player : MonoBehaviour
 
         // Set screen boundaries
         _maxH = 10.0f;
-        _maxV = 1.0f;
-        _minV = -5.0f;
+        _maxV = 4.0f;
+        _minV = -4.0f;
 
         // Set the weapon cooldown
         _laserCoolDown = 0.2f;
@@ -129,7 +129,7 @@ public class Player : MonoBehaviour
     {
         Debug.Log("Firing laser");
         _curCoolDown = Time.time + (_laserCoolDown * _coolDownMult);
-        Instantiate(_pf_laser, transform.position + new Vector3(0, 0.8f, 0), Quaternion.identity);
+        Instantiate(_pf_laser, transform.position + new Vector3(0, 0.75f, 0), Quaternion.identity);
     }
 
     /// <summary>
