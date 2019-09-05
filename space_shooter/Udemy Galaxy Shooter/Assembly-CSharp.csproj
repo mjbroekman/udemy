@@ -65,6 +65,7 @@
     <Compile Include="Assets\Scripts\Enemy_base.cs" />
     <Compile Include="Assets\Scripts\Laser.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
+    <Compile Include="Assets\Scripts\PowerUp.cs" />
     <Compile Include="Assets\Scripts\SpawnManager.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>/Users/mbroekman/git/github/mjbroekman/udemy/space_shooter/Udemy Galaxy Shooter/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

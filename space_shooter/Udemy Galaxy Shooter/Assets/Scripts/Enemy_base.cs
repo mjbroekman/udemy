@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class Enemy_base : MonoBehaviour
 {
-    [SerializeField]
+    // Set base enemy life
+    private readonly float _maxLife = 10f;
+
+    // Set screen boundaries
+    private readonly float _maxH = 9.5f;
+    private readonly float _maxV = 6.5f;
+
     private float _curSpd;
-
-    [SerializeField]
-    private int _maxLife = 10;
-
-    private float _maxH = 9.5f;
-    private float _maxV = 6.5f;
     private float _randomX;
-    private int _curLife;
+    private float _curLife;
 
     // Start is called before the first frame update
     void Start()
@@ -57,7 +57,7 @@ public class Enemy_base : MonoBehaviour
         else if (_what == "Laser")
         {
             Laser laser = other.transform.GetComponent<Laser>();
-            int damage = 0;
+            float damage = 0;
 
             if (laser != null) { damage = laser.GetPower(); }
 
@@ -70,7 +70,7 @@ public class Enemy_base : MonoBehaviour
     /// Apply damage to the enemy.
     /// </summary>
     /// <param name="damage"></param>
-    void TakeDamage(int damage)
+    void TakeDamage(float damage)
     {
         _curLife -= damage;
         Debug.Log(this.transform.name + " took " + damage + " damage from hit.");

@@ -1,30 +1,46 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class Player : MonoBehaviour
 {
-    // [SerializeField] exposes private variables in the inspector but keeps them hidden from other game objects
-    // public vs private
-    // data type (int, float, bool, string)
-    // variable name
-    // optional value assignment
-    [SerializeField]
-    private float _curSpd;
-    [SerializeField]
-    private GameObject _pf_laser; // This is assigned in the Inspector for now
-    [SerializeField]
-    private int _curHealth;
-
-    private float _maxSpd;
-    private float _minSpd;
+    // Screen bounds
     private float _maxH;
     private float _maxV;
     private float _minV;
+
+    // Player speed
+    [SerializeField]
+    private float _curSpd;
+    private float _maxDefSpd;
+    private float _minSpd;
+
+    // Weapon info
+    private GameObject _pf_mainWeapon;
     private float _laserCoolDown;
     private float _curCoolDown;
     private float _coolDownMult;
-    private int _maxHealth;
+
+    // PowerUp info
+    [SerializeField]
+    private bool _tShotEnabled;
+    private float _tShotTime;
+    private float _tShotDuration;
+
+    [SerializeField]
+    private bool _shieldEnabled;
+    private float _shieldStrength;
+
+    [SerializeField]
+    private bool _boostEnabled;
+    private float _boostTime;
+    private float _boostDuration;
+
+    // Health
+    private float _maxHealth;
+    private float _curHealth;
+    private int _lives;
 
     private SpawnManager _spawnManager;
 
@@ -35,7 +51,7 @@ public class Player : MonoBehaviour
 
         // Set base speed as well as max/min speed
         _curSpd = 5.0f;
-        _maxSpd = 10.0f;
+        _maxDefSpd = 10.0f;
         _minSpd = 0.0f;
 
         // Set screen boundaries
@@ -43,14 +59,22 @@ public class Player : MonoBehaviour
         _maxV = 4.0f;
         _minV = -4.0f;
 
-        // Set the weapon cooldown
+        // Set the weapon stats
         _laserCoolDown = 0.2f;
         _curCoolDown = 0f;
         _coolDownMult = 1.0f;
+        _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Laser.prefab");
+
+        // PowerUp info
+        _tShotEnabled = false;
+        _shieldEnabled = false;
+        _boostEnabled = false;
+        _shieldStrength = 0f;
 
         // Set player health
-        _maxHealth = 10;
+        _maxHealth = 10f;
         _curHealth = _maxHealth;
+        _lives = 3;
 
         // Get the spawn Manager
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
@@ -65,9 +89,29 @@ public class Player : MonoBehaviour
     /// </summary>
     void Update()
     {
+        CheckPowerUp();
         CheckGameSpeed();
         CalculateMovement();
         if (Input.GetKey(KeyCode.Space) && Time.time > _curCoolDown) { FireLaser(); }
+    }
+
+    /// <summary>
+    /// Check the state of timed powerups
+    /// </summary>
+    void CheckPowerUp()
+    {
+        float curTime = Time.time;
+        if (_tShotEnabled && (curTime - _tShotTime) > _tShotDuration)
+        {
+            Debug.Log("TripleShot powerup expired");
+            _tShotEnabled = false;
+            _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/Laser.prefab");
+        }
+        if (_boostEnabled && (curTime - _boostTime) > _boostDuration)
+        {
+            Debug.Log("Boost powerup expired");
+            _boostEnabled = false;
+        }
     }
 
     /// <summary>
@@ -77,16 +121,23 @@ public class Player : MonoBehaviour
     {
         bool sInputUp = Input.GetKey(KeyCode.RightBracket);
         bool sInputDown = Input.GetKey(KeyCode.LeftBracket);
+        float _maxSpd = _maxDefSpd;
+        float _spdMod = 20f;
 
+        if (_boostEnabled)
+        {
+            _maxSpd = _maxDefSpd * 2f;
+            _spdMod = 40f;
+        }
         if (sInputUp)
         {
-            _curSpd += 20.0f * Time.deltaTime;
+            _curSpd += _spdMod * Time.deltaTime;
             if (_curSpd > _maxSpd) { _curSpd = _maxSpd; }
         }
 
         if (sInputDown)
         {
-            _curSpd -= 20.0f * Time.deltaTime;
+            _curSpd -= _spdMod * Time.deltaTime;
             if (_curSpd < _minSpd) { _curSpd = _minSpd; }
         }
     }
@@ -127,24 +178,81 @@ public class Player : MonoBehaviour
     /// </summary>
     void FireLaser()
     {
-        Debug.Log("Firing laser");
-        _curCoolDown = Time.time + (_laserCoolDown * _coolDownMult);
-        Instantiate(_pf_laser, transform.position + new Vector3(0, 0.75f, 0), Quaternion.identity);
+        if (_pf_mainWeapon != null)
+        {
+            if (_tShotEnabled) { Debug.Log("Firing triple shot!"); }
+            else { Debug.Log("Firing single laser."); }
+
+            _curCoolDown = Time.time + (_laserCoolDown * _coolDownMult);
+            Instantiate(_pf_mainWeapon, transform.position + new Vector3(0, 0.75f, 0), Quaternion.identity);
+        }
+        else
+        {
+            Debug.LogError("Unable to find weapon!");
+        }
     }
 
     /// <summary>
     /// Apply damage from hitting something, like an enemy.
     /// </summary>
     /// <param name="damage"></param>
-    public void TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
-        Debug.Log("Player took " + damage + " damage from that hit.");
-        _curHealth -= damage;
-        if (_curHealth <= 0)
+        if (_shieldEnabled && _shieldStrength > 0f && _shieldStrength >= damage)
         {
-            _spawnManager.OnPlayerDeath();
-            Debug.Log("I'm going down! I'm hit! It's all over for me!");
-            Destroy(this.gameObject, 0.5f);
+            _shieldStrength -= damage;
+            Debug.Log("Shield absorbed " + damage + " damage from that hit.");
+        }
+        else
+        {
+            if (_shieldEnabled && _shieldStrength > 0f)
+            {
+                _shieldEnabled = false;
+                damage -= _shieldStrength;
+                Debug.Log("Shield absorbed " + _shieldStrength + " damage before giving out.");
+                _shieldStrength = 0f;
+            }
+            Debug.Log("Player took " + damage + " damage from that hit.");
+            _curHealth -= damage;
+            if (_curHealth <= 0)
+            {
+                Debug.Log("This life is over!");
+                if (_lives > 0)
+                {
+                    Debug.Log("...but another life begins!");
+                    _curHealth = _maxHealth;
+                    _lives--;
+                }
+                else
+                {
+                    _spawnManager.OnPlayerDeath();
+                    Debug.Log("I'm going down! I'm hit! It's all over for me!");
+                    Destroy(this.gameObject, 0.5f);
+                }
+            }
         }
     }
+
+    public void CollectPowerUp(string powerUp, float strength)
+    {
+        if (powerUp == "TripleShot")
+        {
+            _tShotEnabled = true;
+            _tShotTime = Time.time;
+            _tShotDuration = strength;
+            _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/TripleShot.prefab");
+        }
+        if (powerUp == "Shield")
+        {
+            _shieldEnabled = true;
+            _shieldStrength += strength;
+        }
+        if (powerUp == "Boost")
+        {
+            _boostEnabled = true;
+            _boostTime = Time.time;
+            _boostDuration = strength;
+        }
+    }
+
 }
