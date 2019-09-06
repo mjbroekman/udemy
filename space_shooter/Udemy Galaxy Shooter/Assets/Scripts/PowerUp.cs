@@ -6,7 +6,7 @@ public class PowerUp : MonoBehaviour
 {
     // This is the type of powerUp (TripleShot, Shield, Boost, etc)
     private string _variant;
-    // This is how long the powerUp lasts
+    // This is how long the powerUp lasts (duration in seconds or damage absorbed)
     private float _strength;
     // This is how fast the powerUp 'falls'
     private readonly float _speed = 3f;
@@ -31,11 +31,7 @@ public class PowerUp : MonoBehaviour
     {
         transform.Translate(Vector3.down * _speed * Time.deltaTime);
         // If the powerup falls off the screen, say goodbye Gracie
-        if (transform.position.y < _maxV * -1.1)
-        {
-            Destroy(this.gameObject);
-        }
-
+        if (transform.position.y < _maxV * -1.1) { Destroy(this.gameObject); }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -63,7 +59,7 @@ public class PowerUp : MonoBehaviour
         }
 
         return (wPos == wLen && pLen >= wLen) ||
-                (pPos == pLen && wLen >= pLen);
+               (pPos == pLen && wLen >= pLen);
     }
 
 }

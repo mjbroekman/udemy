@@ -50,8 +50,7 @@ public class Enemy_base : MonoBehaviour
         if (_what == "Player")
         {
             Player player = other.transform.GetComponent<Player>();
-            if (player != null) { player.TakeDamage((int)_curSpd); }
-            // apply the maximum amount of damage I will ever be able to take.
+            if (player != null) { player.TakeDamage(_curSpd); }
             TakeDamage(_maxLife);
         }
         else if (_what == "Laser")
@@ -73,10 +72,6 @@ public class Enemy_base : MonoBehaviour
     void TakeDamage(float damage)
     {
         _curLife -= damage;
-        Debug.Log(this.transform.name + " took " + damage + " damage from hit.");
-        if (_curLife <= 0)
-        {
-            Destroy(this.gameObject);
-        }
+        if (_curLife <= 0) { Destroy(this.gameObject); }
     }
 }

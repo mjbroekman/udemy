@@ -22,14 +22,12 @@ public class Laser : MonoBehaviour
     {
         if (this.transform.parent == null)
         {
-            Debug.Log("I am a laser. Just a plain boring laser.");
             _power = 2f;
             _speed = 8f;
             _hasParent = false;
         }
         else if (ParentIs(this.transform.parent.name, "TripleShot"))
         {
-            Debug.Log("I am a laser. My parent is " + this.transform.parent.name);
             // The tripleshot is weaker per laser, but if you hit an enemy with 2 or 3 of them, you do more damage.
             _power = 1.5f;
             _speed = 9.0f;
@@ -53,10 +51,7 @@ public class Laser : MonoBehaviour
     void Update()
     {
         transform.Translate(Vector3.up * _speed * Time.deltaTime);
-        if (_hasParent)
-        {
-            Destroy(this.transform.parent.gameObject, 1.9f);
-        }
+        if (_hasParent) { Destroy(this.transform.parent.gameObject, 1.9f); }
         Destroy(this.gameObject, 1.9f);
     }
 
@@ -82,8 +77,7 @@ public class Laser : MonoBehaviour
         }
 
         return (wPos == wLen && pLen >= wLen) ||
-
-                (pPos == pLen && wLen >= pLen);
+               (pPos == pLen && wLen >= pLen);
     }
 
 }

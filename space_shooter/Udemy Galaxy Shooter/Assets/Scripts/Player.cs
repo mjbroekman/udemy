@@ -63,11 +63,13 @@ public class Player : MonoBehaviour
         _laserCoolDown = 0.2f;
         _curCoolDown = 0f;
         _coolDownMult = 1.0f;
-        _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Laser.prefab");
+        _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/Laser.prefab");
 
         // PowerUp info
         _tShotEnabled = false;
+        _tShotDuration = 0f;
         _shieldEnabled = false;
+        _boostDuration = 0f;
         _boostEnabled = false;
         _shieldStrength = 0f;
 
@@ -103,14 +105,14 @@ public class Player : MonoBehaviour
         float curTime = Time.time;
         if (_tShotEnabled && (curTime - _tShotTime) > _tShotDuration)
         {
-            Debug.Log("TripleShot powerup expired");
-            _tShotEnabled = false;
-            _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/Laser.prefab");
+            //Debug.Log("TripleShot powerup expired");
+            //_tShotEnabled = false;
+            //_pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/Laser.prefab");
         }
         if (_boostEnabled && (curTime - _boostTime) > _boostDuration)
         {
-            Debug.Log("Boost powerup expired");
-            _boostEnabled = false;
+            //Debug.Log("Boost powerup expired");
+            //_boostEnabled = false;
         }
     }
 
@@ -181,7 +183,6 @@ public class Player : MonoBehaviour
         if (_pf_mainWeapon != null)
         {
             if (_tShotEnabled) { Debug.Log("Firing triple shot!"); }
-            else { Debug.Log("Firing single laser."); }
 
             _curCoolDown = Time.time + (_laserCoolDown * _coolDownMult);
             Instantiate(_pf_mainWeapon, transform.position + new Vector3(0, 0.75f, 0), Quaternion.identity);
@@ -239,8 +240,9 @@ public class Player : MonoBehaviour
         {
             _tShotEnabled = true;
             _tShotTime = Time.time;
-            _tShotDuration = strength;
+            _tShotDuration += strength;
             _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/TripleShot.prefab");
+            StartCoroutine(TripleShotCooldownRoutine());
         }
         if (powerUp == "Shield")
         {
@@ -251,8 +253,25 @@ public class Player : MonoBehaviour
         {
             _boostEnabled = true;
             _boostTime = Time.time;
-            _boostDuration = strength;
+            _boostDuration += strength;
+            _curSpd *= 2f;
+            StartCoroutine(BoostCooldownRoutine());
         }
     }
 
+    IEnumerator TripleShotCooldownRoutine()
+    {
+        yield return new WaitForSeconds(_tShotDuration);
+        Debug.Log("TripleShot powerup expired");
+        _tShotEnabled = false;
+        _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/Laser.prefab");
+    }
+
+    IEnumerator BoostCooldownRoutine()
+    {
+        yield return new WaitForSeconds(_boostDuration);
+        Debug.Log("Boost powerup expired");
+        _boostEnabled = false;
+        _curSpd /= 2f;
+    }
 }

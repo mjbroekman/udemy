@@ -32,7 +32,7 @@ public class SpawnManager : MonoBehaviour
     {
         // Set up delays
         _maxDelay = 2f;
-        _minDelay = 0.5f;
+        _minDelay = 0.75f;
         _bossRate = 10f * _maxDelay;
 
         // Set up scene containers and spawnables
@@ -62,14 +62,8 @@ public class SpawnManager : MonoBehaviour
         {
             GameObject newObj = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
             Debug.Log("Loading " + newObj.name);
-            if (asset == "Enemies")
-            {
-                _enemySpawns.Add(newObj.name, newObj);
-            }
-            if (asset == "PowerUps")
-            {
-                _powerUpSpawns.Add(newObj);
-            }
+            if (asset == "Enemies") { _enemySpawns.Add(newObj.name, newObj); }
+            if (asset == "PowerUps") { _powerUpSpawns.Add(newObj); }
         }
     }
 
@@ -136,14 +130,8 @@ public class SpawnManager : MonoBehaviour
                 _randomX = Random.Range(-_maxH, _maxH);
                 GameObject newSpawn = Instantiate(_spawnObj, new Vector3(_randomX, _spawnV, 0.0f), Quaternion.identity);
 
-                if (newSpawn.tag == "Enemy")
-                {
-                    newSpawn.transform.parent = _enemyContainer.transform;
-                }
-                else if (newSpawn.tag == "PowerUp")
-                {
-                    newSpawn.transform.parent = _powerUpContainer.transform;
-                }
+                if (newSpawn.tag == "Enemy") { newSpawn.transform.parent = _enemyContainer.transform; }
+                else if (newSpawn.tag == "PowerUp") { newSpawn.transform.parent = _powerUpContainer.transform; }
             }
 
             float _delay = Random.Range(_minDelay, _maxDelay);
