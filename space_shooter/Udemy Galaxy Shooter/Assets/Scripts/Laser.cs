@@ -29,7 +29,7 @@ public class Laser : MonoBehaviour
                 _speed = 9.0f;
                 // Change the color to green because we're super powerful
                 _l_spriteRenderer = GetComponent<SpriteRenderer>();
-                _l_spriteRenderer.color = Color.green;
+                if (_l_spriteRenderer != null) { _l_spriteRenderer.color = Color.green; }
             }
             // add other variations of the laser here as elseif comparisons to the parent name
         }

@@ -13,8 +13,9 @@ public class Player : MonoBehaviour
     // Player speed
     [SerializeField]
     private float _curSpd;
-    private float _maxDefSpd;
-    private float _minSpd;
+
+    // ActiveEffects
+    private Dictionary<string, GameObject> _activeEffects;
 
     // Weapon info
     private GameObject _pf_mainWeapon;
@@ -44,6 +45,9 @@ public class Player : MonoBehaviour
 
     private SpawnManager _spawnManager;
 
+    private SpriteRenderer _e_spriteRenderer;
+    private SpriteRenderer _p_spriteRenderer;
+
     void Start()
     {
         // Set starting position to near the bottom of the screen
@@ -51,8 +55,6 @@ public class Player : MonoBehaviour
 
         // Set base speed as well as max/min speed
         _curSpd = 5.0f;
-        _maxDefSpd = 10.0f;
-        _minSpd = 0.0f;
 
         // Set screen boundaries
         _maxH = 10.0f;
@@ -64,6 +66,9 @@ public class Player : MonoBehaviour
         _curCoolDown = 0f;
         _coolDownMult = 1.0f;
         _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/Laser.prefab");
+
+        // Initialize the active effects
+        _activeEffects = new Dictionary<string, GameObject>();
 
         // PowerUp info
         _tShotEnabled = false;
@@ -84,6 +89,9 @@ public class Player : MonoBehaviour
         {
             Debug.LogError("Houston, we have a problem. There is no Spawn_Manager in the scene.");
         }
+
+        // Get the player spriterenderer
+        _p_spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     /// <summary>
@@ -92,7 +100,6 @@ public class Player : MonoBehaviour
     void Update()
     {
         CheckPowerUp();
-        CheckGameSpeed();
         CalculateMovement();
         if (Input.GetKey(KeyCode.Space) && Time.time > _curCoolDown) { FireLaser(); }
     }
@@ -105,42 +112,13 @@ public class Player : MonoBehaviour
         float curTime = Time.time;
         if (_tShotEnabled && (curTime - _tShotTime) > _tShotDuration)
         {
-            //Debug.Log("TripleShot powerup expired");
-            //_tShotEnabled = false;
-            //_pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/Laser.prefab");
+            Debug.Log("TripleShot powerup expired");
+            DisableTripleShot();
         }
         if (_boostEnabled && (curTime - _boostTime) > _boostDuration)
         {
-            //Debug.Log("Boost powerup expired");
-            //_boostEnabled = false;
-        }
-    }
-
-    /// <summary>
-    /// Take user input to change the speed of the game
-    /// </summary>
-    void CheckGameSpeed()
-    {
-        bool sInputUp = Input.GetKey(KeyCode.RightBracket);
-        bool sInputDown = Input.GetKey(KeyCode.LeftBracket);
-        float _maxSpd = _maxDefSpd;
-        float _spdMod = 20f;
-
-        if (_boostEnabled)
-        {
-            _maxSpd = _maxDefSpd * 2f;
-            _spdMod = 40f;
-        }
-        if (sInputUp)
-        {
-            _curSpd += _spdMod * Time.deltaTime;
-            if (_curSpd > _maxSpd) { _curSpd = _maxSpd; }
-        }
-
-        if (sInputDown)
-        {
-            _curSpd -= _spdMod * Time.deltaTime;
-            if (_curSpd < _minSpd) { _curSpd = _minSpd; }
+            Debug.Log("Boost powerup expired");
+            DisableSpeedBoost();
         }
     }
 
@@ -176,14 +154,12 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// Fire the main laser. _pf_laser is assigned in the Inspector.
+    /// Fire the main laser.
     /// </summary>
     void FireLaser()
     {
         if (_pf_mainWeapon != null)
         {
-            if (_tShotEnabled) { Debug.Log("Firing triple shot!"); }
-
             _curCoolDown = Time.time + (_laserCoolDown * _coolDownMult);
             Instantiate(_pf_mainWeapon, transform.position + new Vector3(0, 0.75f, 0), Quaternion.identity);
         }
@@ -201,17 +177,20 @@ public class Player : MonoBehaviour
     {
         if (_shieldEnabled && _shieldStrength > 0f && _shieldStrength >= damage)
         {
+            _e_spriteRenderer = _activeEffects["Shield_PowerUp_Effect"].GetComponent<SpriteRenderer>();
             _shieldStrength -= damage;
-            Debug.Log("Shield absorbed " + damage + " damage from that hit.");
+            // Change color and Alpha to reflect condition of the shield
+            if (_shieldStrength > 20f) { _e_spriteRenderer.color = Color.cyan; }
+            else { _e_spriteRenderer.color = new Color(1f - (_shieldStrength / 20f), 0, _shieldStrength / 20f, (_shieldStrength / 40f) + 0.5f); }
+            Debug.Log("Shield can still absorb " + _shieldStrength + " damage before giving out.");
         }
         else
         {
             if (_shieldEnabled && _shieldStrength > 0f)
             {
-                _shieldEnabled = false;
                 damage -= _shieldStrength;
                 Debug.Log("Shield absorbed " + _shieldStrength + " damage before giving out.");
-                _shieldStrength = 0f;
+                DisableShield();
             }
             Debug.Log("Player took " + damage + " damage from that hit.");
             _curHealth -= damage;
@@ -222,11 +201,14 @@ public class Player : MonoBehaviour
                 {
                     Debug.Log("...but another life begins!");
                     _curHealth = _maxHealth;
+                    _spawnManager.OnPlayerDeath(_lives);
+                    DisablePowerUps();
+                    RemoveAllEffects();
                     _lives--;
                 }
                 else
                 {
-                    _spawnManager.OnPlayerDeath();
+                    _spawnManager.OnPlayerDeath(_lives);
                     Debug.Log("I'm going down! I'm hit! It's all over for me!");
                     Destroy(this.gameObject, 0.5f);
                 }
@@ -236,42 +218,90 @@ public class Player : MonoBehaviour
 
     public void CollectPowerUp(string powerUp, float strength)
     {
-        if (powerUp == "TripleShot")
+        switch (powerUp)
         {
-            _tShotEnabled = true;
-            _tShotTime = Time.time;
-            _tShotDuration += strength;
-            _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/TripleShot.prefab");
-            StartCoroutine(TripleShotCooldownRoutine());
-        }
-        if (powerUp == "Shield")
-        {
-            _shieldEnabled = true;
-            _shieldStrength += strength;
-        }
-        if (powerUp == "Boost")
-        {
-            _boostEnabled = true;
-            _boostTime = Time.time;
-            _boostDuration += strength;
-            _curSpd *= 2f;
-            Debug.Log("Collected Speed Boost: Current Speed = " + _curSpd);
-            StartCoroutine(BoostCooldownRoutine());
+            case "TripleShot": EnableTripleShot(strength); break;
+            case "Shield": EnableShield(strength); break;
+            case "Boost": EnableSpeedBoost(strength); break;
+            default: break;
         }
     }
 
-    IEnumerator TripleShotCooldownRoutine()
+    private void SetEffect(string what)
     {
-        yield return new WaitForSeconds(_tShotDuration);
-        Debug.Log("TripleShot powerup expired");
+        GameObject _effect = _spawnManager.GetEffect(what);
+        if (_effect != null)
+        {
+            GameObject newEffect = Instantiate(_effect, transform.position, Quaternion.identity);
+            newEffect.transform.parent = transform;
+            _activeEffects.Add(what, newEffect);
+        }
+    }
+
+    private void RemoveAllEffects()
+    {
+        foreach (string effect in _activeEffects.Keys)
+        {
+            RemoveEffect(effect);
+        }
+    }
+
+    private void RemoveEffect(string what)
+    {
+        if (_activeEffects.ContainsKey(what))
+        {
+            GameObject _effect = _activeEffects[what];
+            _activeEffects.Remove(what);
+            Destroy(_effect);
+        }
+    }
+
+    private void DisablePowerUps()
+    {
+        if (_tShotEnabled) { DisableTripleShot(); }
+        if (_boostEnabled) { DisableSpeedBoost(); }
+        if (_shieldEnabled) { DisableShield(); }
+    }
+
+    private void EnableShield(float strength)
+    {
+        _shieldEnabled = true;
+        _shieldStrength += strength;
+        if (!_activeEffects.ContainsKey("Shield_PowerUp_Effect")) { SetEffect("Shield_PowerUp_Effect"); }
+        else { Debug.Log("Increasing current shield strength."); }
+    }
+
+    private void DisableShield()
+    {
+        _shieldEnabled = false;
+        _shieldStrength = 0f;
+        RemoveEffect("Shield_PowerUp_Effect");
+    }
+
+    private void EnableTripleShot(float strength)
+    {
+        _tShotEnabled = true;
+        _tShotTime = Time.time;
+        _tShotDuration += strength;
+        _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/TripleShot.prefab");
+    }
+
+    private void DisableTripleShot()
+    {
         _tShotEnabled = false;
         _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/Laser.prefab");
     }
 
-    IEnumerator BoostCooldownRoutine()
+    private void EnableSpeedBoost(float strength)
     {
-        yield return new WaitForSeconds(_boostDuration);
-        Debug.Log("Boost powerup expired");
+        _boostEnabled = true;
+        _boostTime = Time.time;
+        _boostDuration += strength;
+        _curSpd *= 2f;
+    }
+
+    private void DisableSpeedBoost()
+    {
         _boostEnabled = false;
         _curSpd /= 2f;
     }

@@ -1,16 +1,23 @@
 ﻿<Properties StartupConfiguration="{91EEB333-A5B3-6BFF-88C8-B5FB6F445E6A}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/PowerUp.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Player.cs">
     <Files>
-      <File FileName="Assets/Scripts/SpawnManager.cs" Line="51" Column="43" />
+      <File FileName="Assets/Scripts/SpawnManager.cs" Line="217" Column="88" />
       <File FileName="Assets/Scripts/Enemy_base.cs" Line="50" Column="1" />
-      <File FileName="Assets/Scripts/Player.cs" Line="258" Column="76" />
-      <File FileName="Assets/Scripts/Laser.cs" Line="57" Column="1" />
+      <File FileName="Assets/Scripts/Player.cs" Line="54" Column="52" />
+      <File FileName="Assets/Scripts/Laser.cs" Line="32" Column="90" />
       <File FileName="Assets/Scripts/PowerUp.cs" Line="42" Column="68" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="Udemy Galaxy Shooter" expanded="True" selected="True" />
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="a7ab2919-09ef-42f3-aef6-472737db8521" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="afae0b28-ddd2-45dd-b587-9b4bfa7bc4fa" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

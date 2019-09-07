@@ -12,6 +12,7 @@ public class SpawnManager : MonoBehaviour
     private GameObject _powerUpContainer;
     private Dictionary<string, GameObject> _enemySpawns;
     private List<GameObject> _powerUpSpawns;
+    private Dictionary<string, GameObject> _effectsManager;
 
     // Spawn management
     private IEnumerator spawnEnemyRoutine;   // Enemy Spawn Coroutine
@@ -43,6 +44,9 @@ public class SpawnManager : MonoBehaviour
         _powerUpSpawns = new List<GameObject>();
         LoadAssets("PowerUps");
 
+        _effectsManager = new Dictionary<string, GameObject>();
+        LoadAssets("Effects");
+
         EnableEnemySpawn();
         EnablePowerUpSpawn();
 
@@ -66,7 +70,8 @@ public class SpawnManager : MonoBehaviour
             GameObject newObj = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
             Debug.Log("Loading " + newObj.name);
             if (asset == "Enemies") { _enemySpawns.Add(newObj.name, newObj); }
-            if (asset == "PowerUps") { _powerUpSpawns.Add(newObj); }
+            else if (asset == "PowerUps") { _powerUpSpawns.Add(newObj); }
+            else if (asset == "Effects") { _effectsManager.Add(newObj.name, newObj); }
         }
     }
 
@@ -91,6 +96,11 @@ public class SpawnManager : MonoBehaviour
     public void EnablePowerUpSpawn()
     {
         _stopPowerUpSpawning = false;
+    }
+
+    public GameObject GetEffect(string what)
+    {
+        return _effectsManager.ContainsKey(what) ? _effectsManager[what] : null;
     }
 
     // Update is called once per frame
@@ -190,13 +200,8 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    public void OnPlayerDeath()
+    public void OnPlayerDeath(int lives)
     {
-        // Disable spawning and stop our coroutines
-        DisableEnemySpawn();
-        DisablePowerUpSpawn();
-        StopAllCoroutines();
-
         // Destroy any lingering powerups and enemies
         GameObject[] objectsToDestroy = GameObject.FindGameObjectsWithTag("Enemy");
         for (int i = 0; i < objectsToDestroy.Length; i++)
@@ -207,6 +212,14 @@ public class SpawnManager : MonoBehaviour
         for (int i = 0; i < objectsToDestroy.Length; i++)
         {
             Destroy(objectsToDestroy[i]);
+        }
+
+        // Disable enemy/powerup spawning and stop coroutines if that was the last life
+        if (lives == 0)
+        {
+            DisableEnemySpawn();
+            DisablePowerUpSpawn();
+            StopAllCoroutines();
         }
     }
 }
