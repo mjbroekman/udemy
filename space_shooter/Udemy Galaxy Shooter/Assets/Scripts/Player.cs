@@ -255,6 +255,7 @@ public class Player : MonoBehaviour
             _boostTime = Time.time;
             _boostDuration += strength;
             _curSpd *= 2f;
+            Debug.Log("Collected Speed Boost: Current Speed = " + _curSpd);
             StartCoroutine(BoostCooldownRoutine());
         }
     }

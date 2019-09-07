@@ -19,9 +19,9 @@ public class PowerUp : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (IsPowerUpVariant(this.name, "Triple_Shot")) { _variant = "TripleShot"; _strength = 5f; }
-        if (IsPowerUpVariant(this.name, "Shield")) { _variant = "Shield"; _strength = 20f; }
-        if (IsPowerUpVariant(this.name, "Boost")) { _variant = "Boost"; _strength = 5f; }
+        if (name.Contains("Triple_Shot")) { _variant = "TripleShot"; _strength = 5f; }
+        if (name.Contains("Shield")) { _variant = "Shield"; _strength = 20f; }
+        if (name.Contains("Speed_Boost")) { _variant = "Boost"; _strength = 5f; }
         _randomX = Random.Range(-_maxH, _maxH);
         transform.position = new Vector3(_randomX, _maxV, 0.0f);
     }
@@ -40,26 +40,9 @@ public class PowerUp : MonoBehaviour
         if (_what == "Player")
         {
             Player player = other.transform.GetComponent<Player>();
+            Debug.Log("Attempting to get Player to CollectPowerUp(" + _variant + ", " + _strength + ")");
             if (player != null) { player.CollectPowerUp(_variant, _strength); }
-            Destroy(this.gameObject);
+            Destroy(gameObject);
         }
-
     }
-
-    private static bool IsPowerUpVariant(string me, string what)
-    {
-        int pLen = me.Length;
-        int wLen = what.Length;
-        int pPos = 0; int wPos = 0;
-
-        while (pPos < pLen && wPos < wLen && me[pPos] == what[wPos])
-        {
-            pPos++;
-            wPos++;
-        }
-
-        return (wPos == wLen && pLen >= wLen) ||
-               (pPos == pLen && wLen >= pLen);
-    }
-
 }

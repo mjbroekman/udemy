@@ -46,7 +46,7 @@ public class Enemy_base : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         string _what = other.tag;
-        Debug.Log("Hit " + _what);
+
         if (_what == "Player")
         {
             Player player = other.transform.GetComponent<Player>();
