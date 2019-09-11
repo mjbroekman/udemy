@@ -44,9 +44,12 @@ public class Player : MonoBehaviour
     private int _lives;
 
     private SpawnManager _spawnManager;
+    private UIManager _uiManager;
 
     private SpriteRenderer _e_spriteRenderer;
     private SpriteRenderer _p_spriteRenderer;
+
+    private int _score;
 
     void Start()
     {
@@ -71,12 +74,12 @@ public class Player : MonoBehaviour
         _activeEffects = new Dictionary<string, GameObject>();
 
         // PowerUp info
-        _tShotEnabled = false;
         _tShotDuration = 0f;
-        _shieldEnabled = false;
+        _tShotEnabled = false;
         _boostDuration = 0f;
         _boostEnabled = false;
         _shieldStrength = 0f;
+        _shieldEnabled = false;
 
         // Set player health
         _maxHealth = 10f;
@@ -90,7 +93,15 @@ public class Player : MonoBehaviour
             Debug.LogError("Houston, we have a problem. There is no Spawn_Manager in the scene.");
         }
 
-        // Get the player spriterenderer
+        _score = 0;
+        _uiManager = GameObject.Find("UIManager").GetComponent<UIManager>();
+        if (_uiManager == null)
+        {
+            Debug.LogError("Houston, we have a problem. There is no UIManager in the scene.");
+        }
+
+        _uiManager.UpdateLives(_lives);
+
         _p_spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
@@ -110,6 +121,14 @@ public class Player : MonoBehaviour
     void CheckPowerUp()
     {
         float curTime = Time.time;
+        if (_tShotEnabled)
+        {
+            Debug.Log("TripleShot: current time: " + curTime + " tshottime: " + _tShotTime + " duration: " + _tShotDuration);
+        }
+        if (_boostEnabled)
+        {
+            Debug.Log("Boost: current time: " + curTime + " boosttime: " + _boostTime + " duration: " + _boostDuration);
+        }
         if (_tShotEnabled && (curTime - _tShotTime) > _tShotDuration)
         {
             Debug.Log("TripleShot powerup expired");
@@ -177,12 +196,8 @@ public class Player : MonoBehaviour
     {
         if (_shieldEnabled && _shieldStrength > 0f && _shieldStrength >= damage)
         {
-            _e_spriteRenderer = _activeEffects["Shield_PowerUp_Effect"].GetComponent<SpriteRenderer>();
             _shieldStrength -= damage;
-            // Change color and Alpha to reflect condition of the shield
-            if (_shieldStrength > 20f) { _e_spriteRenderer.color = Color.cyan; }
-            else { _e_spriteRenderer.color = new Color(1f - (_shieldStrength / 20f), 0, _shieldStrength / 20f, (_shieldStrength / 40f) + 0.5f); }
-            Debug.Log("Shield can still absorb " + _shieldStrength + " damage before giving out.");
+            UpdateShield();
         }
         else
         {
@@ -197,7 +212,8 @@ public class Player : MonoBehaviour
             if (_curHealth <= 0)
             {
                 Debug.Log("This life is over!");
-                if (_lives > 0)
+                _uiManager.ResetBackground();
+                if (_lives > 1)
                 {
                     Debug.Log("...but another life begins!");
                     _curHealth = _maxHealth;
@@ -205,12 +221,15 @@ public class Player : MonoBehaviour
                     DisablePowerUps();
                     RemoveAllEffects();
                     _lives--;
+                    _uiManager.UpdateLives(_lives);
                 }
                 else
                 {
+                    _lives--;
+                    _uiManager.UpdateLives(_lives);
                     _spawnManager.OnPlayerDeath(_lives);
                     Debug.Log("I'm going down! I'm hit! It's all over for me!");
-                    Destroy(this.gameObject, 0.5f);
+                    Destroy(this.gameObject, 0.1f);
                 }
             }
         }
@@ -268,7 +287,20 @@ public class Player : MonoBehaviour
         _shieldEnabled = true;
         _shieldStrength += strength;
         if (!_activeEffects.ContainsKey("Shield_PowerUp_Effect")) { SetEffect("Shield_PowerUp_Effect"); }
-        else { Debug.Log("Increasing current shield strength."); }
+        else
+        {
+            UpdateShield();
+            Debug.Log("Increasing current shield strength.");
+        }
+    }
+
+    private void UpdateShield()
+    {
+        _e_spriteRenderer = _activeEffects["Shield_PowerUp_Effect"].GetComponent<SpriteRenderer>();
+        // Change color and Alpha to reflect condition of the shield
+        if (_shieldStrength > 20f) { _e_spriteRenderer.color = Color.cyan; }
+        else { _e_spriteRenderer.color = new Color(1f - (_shieldStrength / 20f), 0, _shieldStrength / 20f, (_shieldStrength / 40f) + 0.5f); }
+        Debug.Log("Shield can still absorb " + _shieldStrength + " damage before giving out.");
     }
 
     private void DisableShield()
@@ -289,6 +321,7 @@ public class Player : MonoBehaviour
     private void DisableTripleShot()
     {
         _tShotEnabled = false;
+        _tShotDuration = 0f;
         _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/Laser.prefab");
     }
 
@@ -303,6 +336,13 @@ public class Player : MonoBehaviour
     private void DisableSpeedBoost()
     {
         _boostEnabled = false;
+        _boostDuration = 0f;
         _curSpd /= 2f;
+    }
+
+    public void IncreaseScore(int points)
+    {
+        _score += points;
+        _uiManager.UpdateScore(_score);
     }
 }

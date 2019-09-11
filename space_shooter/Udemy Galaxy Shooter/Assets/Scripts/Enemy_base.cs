@@ -14,6 +14,9 @@ public class Enemy_base : MonoBehaviour
     private float _curSpd;
     private float _randomX;
     private float _curLife;
+    private float _baseLife;
+
+    private Player _player;
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +26,8 @@ public class Enemy_base : MonoBehaviour
         _curSpd = 2.0f + Time.time / 36;
         _curLife = 1 + (int)(Time.time / 36);
         if (_curLife > _maxLife) { _curLife = _maxLife; }
+        _baseLife = _curLife;
+        _player = GameObject.Find("Player").GetComponent<Player>();
     }
 
     /// <summary>
@@ -49,8 +54,7 @@ public class Enemy_base : MonoBehaviour
 
         if (_what == "Player")
         {
-            Player player = other.transform.GetComponent<Player>();
-            if (player != null) { player.TakeDamage(_curSpd); }
+            if (_player != null) { _player.TakeDamage(_curSpd); }
             TakeDamage(_maxLife);
         }
         else if (_what == "Laser")
@@ -72,6 +76,17 @@ public class Enemy_base : MonoBehaviour
     void TakeDamage(float damage)
     {
         _curLife -= damage;
-        if (_curLife <= 0) { Destroy(this.gameObject); }
+        if (_curLife <= 0)
+        {
+            if (_player == null)
+            {
+                Debug.LogError("Unable to find player object!");
+            }
+            else
+            {
+                _player.IncreaseScore((int)_baseLife + (int)_curSpd);
+            }
+            Destroy(this.gameObject);
+        }
     }
 }

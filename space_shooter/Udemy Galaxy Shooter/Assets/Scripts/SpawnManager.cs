@@ -202,21 +202,21 @@ public class SpawnManager : MonoBehaviour
 
     public void OnPlayerDeath(int lives)
     {
-        // Destroy any lingering powerups and enemies
-        GameObject[] objectsToDestroy = GameObject.FindGameObjectsWithTag("Enemy");
-        for (int i = 0; i < objectsToDestroy.Length; i++)
-        {
-            Destroy(objectsToDestroy[i]);
-        }
-        objectsToDestroy = GameObject.FindGameObjectsWithTag("PowerUp");
-        for (int i = 0; i < objectsToDestroy.Length; i++)
-        {
-            Destroy(objectsToDestroy[i]);
-        }
-
         // Disable enemy/powerup spawning and stop coroutines if that was the last life
         if (lives == 0)
         {
+            // Destroy any lingering powerups and enemies
+            GameObject[] objectsToDestroy = GameObject.FindGameObjectsWithTag("Enemy");
+            for (int i = 0; i < objectsToDestroy.Length; i++)
+            {
+                Destroy(objectsToDestroy[i]);
+            }
+            objectsToDestroy = GameObject.FindGameObjectsWithTag("PowerUp");
+            for (int i = 0; i < objectsToDestroy.Length; i++)
+            {
+                Destroy(objectsToDestroy[i]);
+            }
+
             DisableEnemySpawn();
             DisablePowerUpSpawn();
             StopAllCoroutines();
