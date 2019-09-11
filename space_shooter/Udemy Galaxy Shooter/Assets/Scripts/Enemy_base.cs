@@ -23,7 +23,7 @@ public class Enemy_base : MonoBehaviour
     {
         _randomX = Random.Range(-_maxH, _maxH);
         transform.position = new Vector3(_randomX, _maxV, 0.0f);
-        _curSpd = 2.0f + Time.time / 36;
+        _curSpd = 2.0f + (Time.time / 36);
         _curLife = 1 + (int)(Time.time / 36);
         if (_curLife > _maxLife) { _curLife = _maxLife; }
         _baseLife = _curLife;
