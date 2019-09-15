@@ -40,7 +40,7 @@ public class PowerUp : MonoBehaviour
         if (_what == "Player")
         {
             Player player = other.transform.GetComponent<Player>();
-            Debug.Log("Attempting to get Player to CollectPowerUp(" + _variant + ", " + _strength + ")");
+            Debug.Log("PowerUp::OnTriggerEnter2D() :: Attempting to get Player to CollectPowerUp(" + _variant + ", " + _strength + ")");
             if (player != null) { player.CollectPowerUp(_variant, _strength); }
             Destroy(gameObject);
         }

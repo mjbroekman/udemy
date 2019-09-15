@@ -12,10 +12,22 @@ public class UIManager : MonoBehaviour
 
     private readonly string _spritePath = "Assets/Sprites/UI/";
     private Sprite[] _lifeSprites;
+    private Image _livesImage;
 
     private Dictionary<string, Text> _textObjects;
+    private Dictionary<string, Image> _imageObjects;
 
     private int _lastBGUpdate;
+
+    public bool _uiLoaded;
+
+    private bool _is_GameOver;
+    private Text GameOver;
+
+    private IEnumerator _waitForInput;
+
+    private SpawnManager _spawnManager;
+    private GameManager _gameManager;
 
     // Start is called before the first frame update
     void Start()
@@ -25,6 +37,10 @@ public class UIManager : MonoBehaviour
 
         _textObjects = new Dictionary<string, Text>();
         LoadAssets("UI/Text");
+        _imageObjects = new Dictionary<string, Image>();
+        LoadAssets("UI/Images");
+
+        _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
 
         if (_textObjects.ContainsKey("Score_Text") && _textObjects["Score_Text"] != null)
         {
@@ -33,13 +49,33 @@ public class UIManager : MonoBehaviour
         }
         _textObjects["Score_Text"].text = "Score: 0";
 
+        if (_imageObjects.ContainsKey("Lives_Display") && _imageObjects["Lives_Display"] != null)
+        {
+            GameObject _livesDisplay = GameObject.Find("Lives_Display");
+            _livesImage = _livesDisplay == null
+                ? Instantiate(_imageObjects["Lives_Display"], transform)
+                : GameObject.Find("Lives_Display").GetComponent<Image>();
+            InitLives();
+        }
+
         _background = GameObject.Find("Background").GetComponent<SpriteRenderer>();
         if (_background == null)
         {
-            Debug.LogError("Unable to find background component");
+            Debug.LogError("UIManager::Start() :: Unable to find background component");
         }
         ResetBackground();
         _lastBGUpdate = 0;
+
+        _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
+        if (_spawnManager == null)
+        {
+            Debug.LogError("UIManager::Start() :: This is going to be a problem. We don't have a SpawnManager active.");
+        }
+
+        _uiLoaded = true;
+        _gameManager.SetGameState(false);
+        _is_GameOver = _gameManager.GetGameState();
+        _waitForInput = WaitForInput();
     }
 
     // Update is called once per frame
@@ -54,7 +90,7 @@ public class UIManager : MonoBehaviour
     private void LoadAssets(string asset)
     {
         string prefabPath = "Assets/Prefabs/" + asset;
-        Debug.Log("Attempting to load from " + prefabPath);
+        Debug.Log("UIManager::LoadAssets() :: Attempting to load from " + prefabPath);
         foreach (var guid in AssetDatabase.FindAssets("t:Object", new[] { prefabPath }))
         {
             if (asset.Contains("Text"))
@@ -63,8 +99,18 @@ public class UIManager : MonoBehaviour
 
                 if (newObj != null)
                 {
-                    Debug.Log("Loading " + newObj.name);
+                    Debug.Log("UIManager::LoadAssets() :: Loading " + newObj.name);
                     _textObjects.Add(newObj.name, newObj);
+                }
+            }
+            if (asset.Contains("Image"))
+            {
+                Image newObj = AssetDatabase.LoadAssetAtPath<Image>(AssetDatabase.GUIDToAssetPath(guid));
+
+                if (newObj != null)
+                {
+                    Debug.Log("UIManager::LoadAssets() :: Loading " + newObj.name);
+                    _imageObjects.Add(newObj.name, newObj);
                 }
             }
         }
@@ -78,7 +124,7 @@ public class UIManager : MonoBehaviour
             Sprite _newSprite = AssetDatabase.LoadAssetAtPath<Sprite>(AssetDatabase.GUIDToAssetPath(guid));
             if (_newSprite != null)
             {
-                Debug.Log("Adding sprite for " + _newSprite.name);
+                Debug.Log("UIManager::InitLives() :: Adding sprite for " + _newSprite.name);
                 switch (_newSprite.name)
                 {
                     case "no_lives": _lifeSprites[0] = _newSprite; break;
@@ -94,15 +140,14 @@ public class UIManager : MonoBehaviour
     {
         if (_lifeSprites == null) { InitLives(); }
 
-        Image _livesImage = GameObject.Find("Lives_Display").GetComponent<Image>();
-        if (_livesImage != null)
+        if (_livesImage != null && lives >= 0 && lives <= 3)
         {
             _livesImage.sprite = _lifeSprites[lives];
-            if (lives == 0) { DisplayGameOver(); }
+            if (lives == 0) { _gameManager.SetGameState(true); DisplayGameOver(); }
         }
         else
         {
-            Debug.LogError("Can't find the Lives_Display object or the Image component of it");
+            Debug.Log("UIManager::UpdateLives() :: Can't find the Lives_Display object or the Image component of it. Are we trying to update it before it's initialized? Do we have an invalid number of lives?  Lives == " + lives + " Image == " + _livesImage);
         }
     }
 
@@ -112,14 +157,17 @@ public class UIManager : MonoBehaviour
         {
             case 0:
                 FlipBackground(true, false);
+                Debug.Log("UIManager::UpdateBackground() :: Flipped over X axis.");
                 break;
             case 1:
                 FlipBackground(false, true);
+                Debug.Log("UIManager::UpdateBackground() :: Flipped over Y axis.");
                 break;
             case 2:
                 if (_background.color.b < 1f)
                 {
                     _background.color = new Color(_background.color.r, _background.color.g, _background.color.b + 0.1f, _background.color.a);
+                    Debug.Log("UIManager::UpdateBackground() :: Blue shifted. Current Blue == " + _background.color.b);
                 }
                 break;
         }
@@ -147,15 +195,33 @@ public class UIManager : MonoBehaviour
     {
         if (_textObjects.ContainsKey("Game_Over_Text") && _textObjects["Game_Over_Text"] != null)
         {
-            Text GameOver = Instantiate(_textObjects["Game_Over_Text"], transform);
+            GameOver = Instantiate(_textObjects["Game_Over_Text"], transform);
             GameOver.text = "GAME OVER";
+            _is_GameOver = true;
+            StartCoroutine(_waitForInput);
+        }
+    }
+
+    private void FlickerGameOver()
+    {
+        if (_is_GameOver)
+        {
+            GameOver.enabled = !GameOver.enabled;
+        }
+    }
+
+    IEnumerator WaitForInput()
+    {
+        while (_is_GameOver)
+        {
+            yield return new WaitForSeconds(0.5f);
+            FlickerGameOver();
         }
     }
 
     public void UpdateScore(int score)
     {
         _scoreText.text = "Score: " + score;
-        //_textObjects["Score_Text"].text = "Score: " + score;
         if ((int)(score / 100) > _lastBGUpdate) { UpdateBackground(); _lastBGUpdate = (int)(score / 100); }
     }
 }

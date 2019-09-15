@@ -17,17 +17,22 @@ public class Enemy_base : MonoBehaviour
     private float _baseLife;
 
     private Player _player;
+    private float _gameStartTime;
 
     // Start is called before the first frame update
     void Start()
     {
         _randomX = Random.Range(-_maxH, _maxH);
         transform.position = new Vector3(_randomX, _maxV, 0.0f);
-        _curSpd = 2.0f + (Time.time / 36);
-        _curLife = 1 + (int)(Time.time / 36);
+        SetSpeed();
+        _curLife = 1 + (int)((Time.time - _gameStartTime) / 36);
+
         if (_curLife > _maxLife) { _curLife = _maxLife; }
         _baseLife = _curLife;
-        _player = GameObject.Find("Player").GetComponent<Player>();
+        if (GameObject.Find("Player") != null)
+        {
+            _player = GameObject.Find("Player").GetComponent<Player>();
+        }
     }
 
     /// <summary>
@@ -40,8 +45,21 @@ public class Enemy_base : MonoBehaviour
         {
             _randomX = Random.Range(-_maxH, _maxH);
             transform.position = new Vector3(_randomX, _maxV, 0.0f);
-            _curSpd = 2.0f + Time.time / 36;
+            SetSpeed();
         }
+    }
+
+    public void SetGameStart(float _startTime)
+    {
+        // Used to mitigate restarts causing enemies to spawn as faster speeds to begin with
+        Debug.Log("Enemy_base::SetGameStart() :: Setting game start time to " + _startTime);
+        _gameStartTime = _startTime;
+    }
+
+    private void SetSpeed()
+    {
+        _curSpd = 2.0f + ((Time.time - _gameStartTime) / 36);
+        Debug.Log("Enemy_base::SetSpeed() :: Speed has changed to " + _curSpd);
     }
 
     /// <summary>
@@ -80,7 +98,7 @@ public class Enemy_base : MonoBehaviour
         {
             if (_player == null)
             {
-                Debug.LogError("Unable to find player object!");
+                Debug.LogError("Enemy_base::TakeDamage() :: Unable to find player object!");
             }
             else
             {

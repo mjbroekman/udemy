@@ -90,17 +90,21 @@ public class Player : MonoBehaviour
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
         if (_spawnManager == null)
         {
-            Debug.LogError("Houston, we have a problem. There is no Spawn_Manager in the scene.");
+            Debug.LogError("Player::Start() :: Houston, we have a problem. There is no Spawn_Manager in the scene.");
         }
 
         _score = 0;
         _uiManager = GameObject.Find("UIManager").GetComponent<UIManager>();
         if (_uiManager == null)
         {
-            Debug.LogError("Houston, we have a problem. There is no UIManager in the scene.");
+            Debug.LogError("Player::Start() :: Houston, we have a problem. There is no UIManager in the scene.");
         }
 
-        _uiManager.UpdateLives(_lives);
+        if (_uiManager._uiLoaded)
+        {
+            _uiManager.UpdateScore(_score);
+            _uiManager.UpdateLives(_lives);
+        }
 
         _p_spriteRenderer = GetComponent<SpriteRenderer>();
     }
@@ -123,20 +127,20 @@ public class Player : MonoBehaviour
         float curTime = Time.time;
         if (_tShotEnabled)
         {
-            Debug.Log("TripleShot: current time: " + curTime + " tshottime: " + _tShotTime + " duration: " + _tShotDuration);
+            Debug.Log("Player::CheckPowerUp() :: TripleShot: current time: " + curTime + " tshottime: " + _tShotTime + " duration: " + _tShotDuration);
         }
         if (_boostEnabled)
         {
-            Debug.Log("Boost: current time: " + curTime + " boosttime: " + _boostTime + " duration: " + _boostDuration);
+            Debug.Log("Player::CheckPowerUp() :: Boost: current time: " + curTime + " boosttime: " + _boostTime + " duration: " + _boostDuration);
         }
         if (_tShotEnabled && (curTime - _tShotTime) > _tShotDuration)
         {
-            Debug.Log("TripleShot powerup expired");
+            Debug.Log("Player::CheckPowerUp() :: TripleShot powerup expired");
             DisableTripleShot();
         }
         if (_boostEnabled && (curTime - _boostTime) > _boostDuration)
         {
-            Debug.Log("Boost powerup expired");
+            Debug.Log("Player::CheckPowerUp() :: Boost powerup expired");
             DisableSpeedBoost();
         }
     }
@@ -184,7 +188,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Unable to find weapon!");
+            Debug.LogError("Player::FireLaser() :: Unable to find weapon!");
         }
     }
 
@@ -204,18 +208,18 @@ public class Player : MonoBehaviour
             if (_shieldEnabled && _shieldStrength > 0f)
             {
                 damage -= _shieldStrength;
-                Debug.Log("Shield absorbed " + _shieldStrength + " damage before giving out.");
+                Debug.Log("Player::TakeDamage() :: Shield absorbed " + _shieldStrength + " damage before giving out.");
                 DisableShield();
             }
-            Debug.Log("Player took " + damage + " damage from that hit.");
+            Debug.Log("Player::TakeDamage() :: Player took " + damage + " damage from that hit.");
             _curHealth -= damage;
             if (_curHealth <= 0)
             {
-                Debug.Log("This life is over!");
+                Debug.Log("Player::TakeDamage() :: This life is over!");
                 _uiManager.ResetBackground();
                 if (_lives > 1)
                 {
-                    Debug.Log("...but another life begins!");
+                    Debug.Log("Player::TakeDamage() :: ...but another life begins!");
                     _curHealth = _maxHealth;
                     _spawnManager.OnPlayerDeath(_lives);
                     DisablePowerUps();
@@ -228,7 +232,7 @@ public class Player : MonoBehaviour
                     _lives--;
                     _uiManager.UpdateLives(_lives);
                     _spawnManager.OnPlayerDeath(_lives);
-                    Debug.Log("I'm going down! I'm hit! It's all over for me!");
+                    Debug.Log("Player::TakeDamage() :: I'm going down! I'm hit! It's all over for me!");
                     Destroy(this.gameObject, 0.1f);
                 }
             }
@@ -290,7 +294,7 @@ public class Player : MonoBehaviour
         else
         {
             UpdateShield();
-            Debug.Log("Increasing current shield strength.");
+            Debug.Log("Player::EnableShield() :: Increasing current shield strength.");
         }
     }
 
@@ -300,7 +304,7 @@ public class Player : MonoBehaviour
         // Change color and Alpha to reflect condition of the shield
         if (_shieldStrength > 20f) { _e_spriteRenderer.color = Color.cyan; }
         else { _e_spriteRenderer.color = new Color(1f - (_shieldStrength / 20f), 0, _shieldStrength / 20f, (_shieldStrength / 40f) + 0.5f); }
-        Debug.Log("Shield can still absorb " + _shieldStrength + " damage before giving out.");
+        Debug.Log("Player::UpdateShield() :: Shield can still absorb " + _shieldStrength + " damage before giving out.");
     }
 
     private void DisableShield()

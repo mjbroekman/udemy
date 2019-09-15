@@ -16,7 +16,7 @@ public class SpawnManager : MonoBehaviour
 
     // Spawn management
     private IEnumerator spawnEnemyRoutine;   // Enemy Spawn Coroutine
-    private IEnumerator spawnPowerUpRoutine; // Enemy Spawn Coroutine
+    private IEnumerator spawnPowerUpRoutine; // PowerUp Spawn Coroutine
     private bool _stopEnemySpawning;         // Should we stop spawning new enemy objects
     private bool _stopPowerUpSpawning;         // Should we stop spawning new enemy objects
     private float _bossRate;                 // How often should 'boss' enemies appear
@@ -29,10 +29,12 @@ public class SpawnManager : MonoBehaviour
     private readonly float _maxH = 9.5f;
     private readonly float _maxV = 6.5f;
     private readonly float _minV = -5f;
+    private float _gameTime;
     private float _randomX;
 
     void Start()
     {
+        _gameTime = Time.time;
         // Set up scene containers and spawnables
         _enemyContainer = new GameObject("Enemy Container");
         _enemyContainer.transform.parent = this.transform;
@@ -57,6 +59,8 @@ public class SpawnManager : MonoBehaviour
         StartCoroutine(spawnPowerUpRoutine);
     }
 
+
+
     /// <summary>
     /// Load up the assets that the SpawnManager will control
     /// </summary>
@@ -64,17 +68,32 @@ public class SpawnManager : MonoBehaviour
     void LoadAssets(string asset)
     {
         string prefabPath = "Assets/Prefabs/" + asset;
-        Debug.Log("Attempting to load from " + prefabPath);
+        Debug.Log("SpawnManager::LoadAssets() :: Attempting to load from " + prefabPath);
         foreach (var guid in AssetDatabase.FindAssets("t:GameObject", new[] { prefabPath }))
         {
             GameObject newObj = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
-            Debug.Log("Loading " + newObj.name);
-            if (asset == "Enemies") { _enemySpawns.Add(newObj.name, newObj); }
-            else if (asset == "PowerUps") { _powerUpSpawns.Add(newObj); }
-            else if (asset == "Effects") { _effectsManager.Add(newObj.name, newObj); }
+            Debug.Log("SpawnManager::LoadAssets() :: Loading " + newObj.name);
+            switch (asset)
+            {
+                case "Enemies":
+                    _enemySpawns.Add(newObj.name, newObj);
+                    break;
+                case "PowerUps":
+                    _powerUpSpawns.Add(newObj);
+                    break;
+                case "Effects":
+                    _effectsManager.Add(newObj.name, newObj);
+                    break;
+            }
         }
     }
 
+    public void RestartGame()
+    {
+        _gameTime = Time.time;
+        StartCoroutine(spawnEnemyRoutine);
+        StartCoroutine(spawnPowerUpRoutine);
+    }
 
     // Control the spawning of Enemies
     public void DisableEnemySpawn()
@@ -123,7 +142,7 @@ public class SpawnManager : MonoBehaviour
 
         while (!_stopEnemySpawning)
         {
-            Debug.Log("Next enemy spawn between " + _minEDelay + " and " + _maxEDelay + " seconds from now.");
+            Debug.Log("SpawnManager::SpawnEnemyRoutine() :: Next enemy spawn between " + _minEDelay + " and " + _maxEDelay + " seconds from now.");
             float _delay = Random.Range(_minEDelay, _maxEDelay);
             yield return new WaitForSeconds(_delay);
 
@@ -156,6 +175,11 @@ public class SpawnManager : MonoBehaviour
                 _randomX = Random.Range(-_maxH, _maxH);
                 GameObject newSpawn = Instantiate(_spawnObj, new Vector3(_randomX, _spawnV, 0.0f), Quaternion.identity);
                 newSpawn.transform.parent = _enemyContainer.transform;
+                var newEnemy = newSpawn.GetComponent<Enemy_base>();
+                if (newEnemy != null)
+                {
+                    newEnemy.SetGameStart(_gameTime);
+                }
             }
         }
     }
@@ -174,7 +198,7 @@ public class SpawnManager : MonoBehaviour
 
         while (!_stopPowerUpSpawning)
         {
-            Debug.Log("Next powerup spawn between " + _minPDelay + " and " + _maxPDelay + " seconds from now.");
+            Debug.Log("SpawnManager::SpawnPowerUpRoutine() :: Next powerup spawn between " + _minPDelay + " and " + _maxPDelay + " seconds from now.");
             float _delay = Random.Range(_minPDelay, _maxPDelay);
             yield return new WaitForSeconds(_delay);
 
@@ -188,7 +212,7 @@ public class SpawnManager : MonoBehaviour
             // Pick a random powerup from the loaded powerUp objects
             int _randType = Random.Range(0, _powerUpSpawns.Count);
             _spawnObj = _powerUpSpawns[_randType];
-            Debug.Log("Spawning a " + _spawnObj);
+            Debug.Log("SpawnManager::SpawnPowerUpRoutine() :: Spawning a " + _spawnObj);
 
             if (_spawnObj != null)
             {
