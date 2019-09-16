@@ -21,7 +21,12 @@ public class GameManager : MonoBehaviour
             if (Input.GetKey(KeyCode.R))
             {
                 _is_GameOver = false;
-                // Main game play is in Scene 0
+                // Main game play is in Scene 1
+                SceneManager.LoadScene(1);
+            }
+            if (Input.GetKey(KeyCode.M))
+            {
+                // Load the main menu (scene 0)
                 SceneManager.LoadScene(0);
             }
         }
