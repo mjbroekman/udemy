@@ -226,6 +226,8 @@ public class SpawnManager : MonoBehaviour
 
     public void OnPlayerDeath(int lives)
     {
+        _gameTime = Time.time / 2;
+        Debug.Log("SpawnManager::OnPlayerDeath() :: Resetting game time to " + _gameTime);
         // Disable enemy/powerup spawning and stop coroutines if that was the last life
         if (lives == 0)
         {
