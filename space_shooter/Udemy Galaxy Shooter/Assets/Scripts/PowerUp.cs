@@ -9,19 +9,34 @@ public class PowerUp : MonoBehaviour
     // This is how long the powerUp lasts (duration in seconds or damage absorbed)
     private float _strength;
     // This is how fast the powerUp 'falls'
-    private readonly float _speed = 3f;
+    private float _speed = 2f;
 
     // Screen boundaries and positioning
-    private readonly float _maxH = 9.5f;
-    private readonly float _maxV = 6.5f;
+    private GameManager _gameManager;
+    private float _maxH;
+    private float _maxV;
+    private float _minV;
     private float _randomX;
 
     // Start is called before the first frame update
     void Start()
     {
+        _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
+        if (_gameManager == null)
+        {
+            Debug.LogError("Player::Start() :: We have a problem. The gameManager is null");
+        }
+
+        float[] _bounds = _gameManager.GetScreenBoundaries(this.gameObject);
+        _maxH = _bounds[1];
+        _minV = _bounds[2];
+        _maxV = _bounds[3];
+        _speed += _gameManager.GetLevel() / 2f;
+
         if (name.Contains("Triple_Shot")) { _variant = "TripleShot"; _strength = 5f; }
         if (name.Contains("Shield")) { _variant = "Shield"; _strength = 20f; }
         if (name.Contains("Speed_Boost")) { _variant = "Boost"; _strength = 5f; }
+
         _randomX = Random.Range(-_maxH, _maxH);
         transform.position = new Vector3(_randomX, _maxV, 0.0f);
     }
@@ -31,7 +46,7 @@ public class PowerUp : MonoBehaviour
     {
         transform.Translate(Vector3.down * _speed * Time.deltaTime);
         // If the powerup falls off the screen, say goodbye Gracie
-        if (transform.position.y < _maxV * -1.1) { Destroy(this.gameObject); }
+        if (transform.position.y < _minV * 1.1) { Destroy(this.gameObject); }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -40,7 +55,7 @@ public class PowerUp : MonoBehaviour
         if (_what == "Player")
         {
             Player player = other.transform.GetComponent<Player>();
-            Debug.Log("PowerUp::OnTriggerEnter2D() :: Attempting to get Player to CollectPowerUp(" + _variant + ", " + _strength + ")");
+            //Debug.Log("PowerUp::OnTriggerEnter2D() :: Attempting to get Player to CollectPowerUp(" + _variant + ", " + _strength + ")");
             if (player != null) { player.CollectPowerUp(_variant, _strength); }
             Destroy(gameObject);
         }

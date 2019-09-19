@@ -45,6 +45,7 @@ public class Player : MonoBehaviour
 
     private SpawnManager _spawnManager;
     private UIManager _uiManager;
+    private GameManager _gameManager;
 
     private SpriteRenderer _e_spriteRenderer;
     private SpriteRenderer _p_spriteRenderer;
@@ -59,15 +60,10 @@ public class Player : MonoBehaviour
         // Set base speed as well as max/min speed
         _curSpd = 5.0f;
 
-        // Set screen boundaries
-        _maxH = 10.0f;
-        _maxV = 4.0f;
-        _minV = -4.0f;
-
         // Set the weapon stats
         _laserCoolDown = 0.2f;
         _curCoolDown = 0f;
-        _coolDownMult = 1.0f;
+        _coolDownMult = 1f;
         _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/Laser.prefab");
 
         // Initialize the active effects
@@ -86,19 +82,30 @@ public class Player : MonoBehaviour
         _curHealth = _maxHealth;
         _lives = 3;
 
-        // Get the spawn Manager
+        // Get the spawn Manager and UI Manager
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
         if (_spawnManager == null)
         {
             Debug.LogError("Player::Start() :: Houston, we have a problem. There is no Spawn_Manager in the scene.");
         }
 
-        _score = 0;
         _uiManager = GameObject.Find("UIManager").GetComponent<UIManager>();
         if (_uiManager == null)
         {
             Debug.LogError("Player::Start() :: Houston, we have a problem. There is no UIManager in the scene.");
         }
+
+        _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
+        if (_gameManager == null)
+        {
+            Debug.LogError("Player::Start() :: We have a problem. The gameManager is null");
+        }
+
+        float[] _bounds = _gameManager.GetScreenBoundaries(this.gameObject);
+        _maxH = _bounds[1];
+        _minV = _bounds[2];
+        _maxV = _bounds[3];
+        _score = 0;
 
         if (_uiManager._uiLoaded)
         {
@@ -127,11 +134,11 @@ public class Player : MonoBehaviour
         float curTime = Time.time;
         if (_tShotEnabled)
         {
-            Debug.Log("Player::CheckPowerUp() :: TripleShot: current time: " + curTime + " tshottime: " + _tShotTime + " duration: " + _tShotDuration);
+            //Debug.Log("Player::CheckPowerUp() :: TripleShot: current time: " + curTime + " tshottime: " + _tShotTime + " duration: " + _tShotDuration);
         }
         if (_boostEnabled)
         {
-            Debug.Log("Player::CheckPowerUp() :: Boost: current time: " + curTime + " boosttime: " + _boostTime + " duration: " + _boostDuration);
+            //Debug.Log("Player::CheckPowerUp() :: Boost: current time: " + curTime + " boosttime: " + _boostTime + " duration: " + _boostDuration);
         }
         if (_tShotEnabled && (curTime - _tShotTime) > _tShotDuration)
         {
@@ -158,22 +165,11 @@ public class Player : MonoBehaviour
         transform.Translate(new Vector3(hInput, vInput, 0) * _curSpd * Time.deltaTime);
 
         // Check to see if the new player position is 'outside' the bounds and warp to other side if they are
-        if (transform.position.y > _maxV)
-        {
-            transform.position = new Vector3(transform.position.x, _maxV, 0);
-        }
-        else if (transform.position.y < _minV)
-        {
-            transform.position = new Vector3(transform.position.x, _minV, 0);
-        }
-        if (transform.position.x > _maxH)
-        {
-            transform.position = new Vector3(-_maxH, transform.position.y, 0);
-        }
-        else if (transform.position.x < -_maxH)
-        {
-            transform.position = new Vector3(_maxH, transform.position.y, 0);
-        }
+        if (transform.position.y > _maxV) transform.position = new Vector3(transform.position.x, _maxV, 0f);
+        else if (transform.position.y < _minV) transform.position = new Vector3(transform.position.x, _minV, 0f);
+
+        if (transform.position.x > _maxH) transform.position = new Vector3(-_maxH, transform.position.y, 0f);
+        else if (transform.position.x < -_maxH) transform.position = new Vector3(_maxH, transform.position.y, 0f);
     }
 
     /// <summary>

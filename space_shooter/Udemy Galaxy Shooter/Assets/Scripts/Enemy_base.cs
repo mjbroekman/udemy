@@ -8,9 +8,10 @@ public class Enemy_base : MonoBehaviour
     private readonly float _maxLife = 10f;
 
     // Set screen boundaries
-    private readonly float _maxH = 9.5f;
-    private readonly float _maxV = 6.5f;
-
+    private float _maxH;
+    private float _maxV;
+    private float[] _bounds;
+    [SerializeField]
     private float _curSpd;
     private float _randomX;
     private float _curLife;
@@ -21,10 +22,29 @@ public class Enemy_base : MonoBehaviour
     private Vector3 _lastMove;
 
     private Animator _e_animator;
+    private SpawnManager _spawnManager;
+    private GameManager _gameManager;
 
     // Start is called before the first frame update
     void Start()
     {
+        // Get the spawn Manager
+        _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
+        if (_spawnManager == null)
+        {
+            Debug.LogError("Enemy_base::Start() :: Houston, we have a problem. There is no Spawn_Manager in the scene.");
+        }
+
+        _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
+        if (_gameManager == null)
+        {
+            Debug.LogError("Enemy_base::Start() :: We have a problem. The gameManager is null");
+        }
+
+        _bounds = _gameManager.GetScreenBoundaries(this.gameObject);
+        _maxH = _bounds[1];
+        _maxV = _bounds[3];
+
         _randomX = Random.Range(-_maxH, _maxH);
         _lastMove = Vector3.down;
         transform.position = new Vector3(_randomX, _maxV, 0.0f);
@@ -62,48 +82,54 @@ public class Enemy_base : MonoBehaviour
     {
         float _randomH = Random.Range(0f, 100f);
         transform.Translate(Vector3.down * _curSpd * Time.deltaTime);
-        if (_randomH > 95f || (_randomH > 50f && _lastMove != Vector3.down))
+        if (_randomH > 90f || (_randomH > 25f && _lastMove != Vector3.down))
         {
             float _randomDir = Random.Range(0f, 1f);
             if (_lastMove == Vector3.down)
             {
-                Debug.Log("Enemy_base::Update() :: Moving horizontally! _lastMove == " + _lastMove + " random direction == " + _randomDir);
+                //Debug.Log("Enemy_base::Update() :: Moving horizontally! _lastMove == " + _lastMove + " random direction == " + _randomDir);
                 if (_randomDir > 0.5f)
                 {
                     transform.Translate(Vector3.left * _curSpd * Time.deltaTime);
+                    if (transform.position.x < -_maxH) transform.position = new Vector3(_maxH, transform.position.y, 0.0f);
                     _lastMove = Vector3.left;
                 }
                 else
                 {
                     transform.Translate(Vector3.right * _curSpd * Time.deltaTime);
+                    if (transform.position.x > _maxH) transform.position = new Vector3(-_maxH, transform.position.y, 0.0f);
                     _lastMove = Vector3.right;
                 }
             }
             else if (_lastMove == Vector3.left)
             {
-                Debug.Log("Enemy_base::Update() :: Moving horizontally! _lastMove == " + _lastMove + " random direction == " + _randomDir);
-                if (_randomDir > 0.1f)
+                //Debug.Log("Enemy_base::Update() :: Moving horizontally! _lastMove == " + _lastMove + " random direction == " + _randomDir);
+                if (_randomDir > 0.05f)
                 {
                     transform.Translate(Vector3.left * _curSpd * Time.deltaTime);
+                    if (transform.position.x < -_maxH) transform.position = new Vector3(_maxH, transform.position.y, 0.0f);
                     _lastMove = Vector3.left;
                 }
                 else
                 {
                     transform.Translate(Vector3.right * _curSpd * Time.deltaTime);
+                    if (transform.position.x > _maxH) transform.position = new Vector3(-_maxH, transform.position.y, 0.0f);
                     _lastMove = Vector3.right;
                 }
             }
             else if (_lastMove == Vector3.right)
             {
-                Debug.Log("Enemy_base::Update() :: Moving horizontally! _lastMove == " + _lastMove + " random direction == " + _randomDir);
-                if (_randomDir > 0.9f)
+                //Debug.Log("Enemy_base::Update() :: Moving horizontally! _lastMove == " + _lastMove + " random direction == " + _randomDir);
+                if (_randomDir > 0.95f)
                 {
                     transform.Translate(Vector3.left * _curSpd * Time.deltaTime);
+                    if (transform.position.x < -_maxH) transform.position = new Vector3(_maxH, transform.position.y, 0.0f);
                     _lastMove = Vector3.left;
                 }
                 else
                 {
                     transform.Translate(Vector3.right * _curSpd * Time.deltaTime);
+                    if (transform.position.x > _maxH) transform.position = new Vector3(-_maxH, transform.position.y, 0.0f);
                     _lastMove = Vector3.right;
                 }
             }
@@ -117,6 +143,7 @@ public class Enemy_base : MonoBehaviour
         {
             _randomX = Random.Range(-_maxH, _maxH);
             transform.position = new Vector3(_randomX, _maxV, 0.0f);
+            _lastMove = Vector3.down;
             SetSpeed();
         }
     }
@@ -155,21 +182,31 @@ public class Enemy_base : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         string _what = other.tag;
-
-        if (_what == "Player")
+        switch (_what)
         {
-            if (_player != null) { _player.TakeDamage(_curSpd); }
-            TakeDamage(_maxLife);
-        }
-        else if (_what == "Laser")
-        {
-            Laser laser = other.transform.GetComponent<Laser>();
-            float damage = 0;
+            case "Player":
+                if (_player != null) { _player.TakeDamage(_curSpd); }
+                TakeDamage(_maxLife, true);
+                break;
+            case "Laser":
+                Laser laser = other.transform.GetComponent<Laser>();
+                float damage = 0;
 
-            if (laser != null) { damage = laser.GetPower(); }
+                if (laser != null) { damage = laser.GetPower(); }
 
-            Destroy(other.gameObject);
-            TakeDamage(damage);
+                Destroy(other.gameObject);
+                TakeDamage(damage, true);
+                break;
+            case "Asteroid":
+                TakeDamage(_maxLife, false);
+                break;
+            case "PowerUp":
+                break;
+            case "Enemy":
+                break;
+            default:
+                Debug.Log("Enemy_base::OnTriggerEnter2D() :: Hit something undefined");
+                break;
         }
     }
 
@@ -177,7 +214,7 @@ public class Enemy_base : MonoBehaviour
     /// Apply damage to the enemy.
     /// </summary>
     /// <param name="damage"></param>
-    void TakeDamage(float damage)
+    void TakeDamage(float damage, bool _byPlayer)
     {
         _curLife -= damage;
         if (_curLife <= 0)
@@ -188,7 +225,7 @@ public class Enemy_base : MonoBehaviour
             }
             else
             {
-                _player.IncreaseScore((int)_baseLife + (int)_curSpd);
+                if (_byPlayer) { _player.IncreaseScore((int)_baseLife + (int)_curSpd); }
             }
             _e_animator.SetTrigger("OnEnemyDeath");
             gameObject.GetComponent<BoxCollider2D>().enabled = false;

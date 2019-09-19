@@ -25,6 +25,7 @@ public class UIManager : MonoBehaviour
     private Text GameOver;
 
     private IEnumerator _waitForInput;
+    private bool _gameReady;
 
     private SpawnManager _spawnManager;
     private GameManager _gameManager;
@@ -39,8 +40,6 @@ public class UIManager : MonoBehaviour
         LoadAssets("UI/Text");
         _imageObjects = new Dictionary<string, Image>();
         LoadAssets("UI/Images");
-
-        _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
 
         if (_textObjects.ContainsKey("Score_Text") && _textObjects["Score_Text"] != null)
         {
@@ -72,10 +71,21 @@ public class UIManager : MonoBehaviour
             Debug.LogError("UIManager::Start() :: This is going to be a problem. We don't have a SpawnManager active.");
         }
 
-        _uiLoaded = true;
+        _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
+        if (_gameManager == null)
+        {
+            Debug.LogError("UIManager::Start() :: We have a problem. The gameManager is null");
+        }
+
         _gameManager.SetGameState(false);
         _is_GameOver = _gameManager.GetGameState();
+        _uiLoaded = true;
         _waitForInput = WaitForInput();
+    }
+
+    public bool IsStarted()
+    {
+        return _uiLoaded;
     }
 
     // Update is called once per frame

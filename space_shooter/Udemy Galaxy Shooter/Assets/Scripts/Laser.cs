@@ -5,7 +5,6 @@ using UnityEngine;
 public class Laser : MonoBehaviour
 {
     // Base attributes
-    [SerializeField]
     private float _power;
     private float _speed;
 
