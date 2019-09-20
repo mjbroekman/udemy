@@ -18,7 +18,6 @@ public class Enemy_base : MonoBehaviour
     private float _baseLife;
 
     private Player _player;
-    private float _gameStartTime;
     private Vector3 _lastMove;
 
     private Animator _e_animator;
@@ -49,7 +48,7 @@ public class Enemy_base : MonoBehaviour
         _lastMove = Vector3.down;
         transform.position = new Vector3(_randomX, _maxV, 0.0f);
         SetSpeed();
-        _curLife = 1 + (int)((Time.time - _gameStartTime) / 36);
+        _curLife = 1f + (_gameManager.GetLevel() / 4f);
 
         if (_curLife > _maxLife) { _curLife = _maxLife; }
         _baseLife = _curLife;
@@ -162,16 +161,9 @@ public class Enemy_base : MonoBehaviour
         else if (_curLife <= 10f) colorize.color = new Color(1f, 0.666f, 0f, 1f);
     }
 
-    public void SetGameStart(float _startTime)
-    {
-        // Used to mitigate restarts causing enemies to spawn as faster speeds to begin with
-        Debug.Log("Enemy_base::SetGameStart() :: Setting game start time to " + _startTime);
-        _gameStartTime = _startTime;
-    }
-
     private void SetSpeed()
     {
-        _curSpd = 2.0f + ((Time.time - _gameStartTime) / 36);
+        _curSpd = 2.0f + ((_gameManager.GetLevel() - 1f) / 2f);
         Debug.Log("Enemy_base::SetSpeed() :: Speed has changed to " + _curSpd);
     }
 

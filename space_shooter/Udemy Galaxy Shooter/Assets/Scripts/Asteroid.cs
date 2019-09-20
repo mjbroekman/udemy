@@ -60,7 +60,7 @@ public class Asteroid : MonoBehaviour
         if (_direction == new Vector3(0f, 0f, 0f))
         {
             int _dirPick = Random.Range(0, 4);
-            Debug.Log("Asteroid::PickDirection() :: Picked direction: " + _dirPick);
+            //Debug.Log("Asteroid::PickDirection() :: Picked direction: " + _dirPick);
             switch (_dirPick)
             {
                 case 0: _direction = Vector3.left + Vector3.down; break;
@@ -110,17 +110,17 @@ public class Asteroid : MonoBehaviour
     /// <param name="damage"></param>
     void TakeDamage(float damage)
     {
-        Debug.Log("Asteroid::TakeDamage() :: Took " + damage + " damage. Health remaining == " + _health);
+        //Debug.Log("Asteroid::TakeDamage() :: Took " + damage + " damage. Health remaining == " + _health);
         _health -= damage;
         if (_health <= 0)
         {
             gameObject.GetComponent<CircleCollider2D>().enabled = false;
             _gameManager.IncreaseLevel();
+            _ = Instantiate(_spawnManager.GetEffect("Explosion"), transform.position, Quaternion.identity);
             _spawnManager.EnableEnemySpawn();
             _spawnManager.EnablePowerUpSpawn();
             Destroy(this.gameObject);
         }
     }
-
 }
 

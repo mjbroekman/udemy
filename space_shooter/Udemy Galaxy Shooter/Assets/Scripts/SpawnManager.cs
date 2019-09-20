@@ -44,7 +44,6 @@ public class SpawnManager : MonoBehaviour
 
     void Start()
     {
-
         _isStarted = false;
         _gameTime = Time.time;
         // Set up scene containers and spawnables
@@ -217,11 +216,6 @@ public class SpawnManager : MonoBehaviour
                 _randomX = Random.Range(-_maxH, _maxH);
                 GameObject newSpawn = Instantiate(_spawnObj, new Vector3(_randomX, _spawnV, 0.0f), Quaternion.identity);
                 newSpawn.transform.parent = _enemyContainer.transform;
-                var newEnemy = newSpawn.GetComponent<Enemy_base>();
-                if (newEnemy != null)
-                {
-                    newEnemy.SetGameStart(_gameTime);
-                }
             }
         }
     }
