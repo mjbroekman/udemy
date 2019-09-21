@@ -7,13 +7,13 @@ public class GameManager : MonoBehaviour
 {
     private bool _is_GameOver;
     private bool _isStarted;
-    private float _difficultyLevel = 1f;
+    private float _difficultyLevel = 1;
 
     // Start is called before the first frame update
     void Start()
     {
         _isStarted = false;
-        _difficultyLevel = 1f;
+        _difficultyLevel = 1;
         _is_GameOver = true;
         _isStarted = true;
     }
@@ -54,23 +54,23 @@ public class GameManager : MonoBehaviour
 
     public void SetGameState(bool gState)
     {
-        Debug.Log("GameManager::SetGameState() :: Setting gameState to " + gState);
+        //Debug.Log("GameManager::SetGameState() :: Setting gameState to " + gState);
         _is_GameOver = gState;
     }
 
     public float GetLevel()
     {
-        Debug.Log("GameManager::GetLevel() :: Returned " + _difficultyLevel + " as level");
+        //Debug.Log("GameManager::GetLevel() :: Returned " + _difficultyLevel + " as level");
         return _difficultyLevel;
     }
 
     public void IncreaseLevel()
     {
         _difficultyLevel++;
-        Debug.Log("GameManager::IncreaseLevel() :: Increased level to " + _difficultyLevel);
+        //Debug.Log("GameManager::IncreaseLevel() :: Increased level to " + _difficultyLevel);
     }
 
-    public void SetLevel(float level)
+    public void SetLevel(int level)
     {
         _difficultyLevel = level;
         Debug.Log("GameManager::SetLevel() :: Set level to " + _difficultyLevel);
@@ -94,7 +94,7 @@ public class GameManager : MonoBehaviour
             // return float[] { minX, maxX, minY, maxY }
             case "Player": return new float[] { -10f, 10f, -4f, 4f };
             case "Asteroid": return new float[] { -9.5f, 9.5f, -5f, 5.5f };
-            default: return new float[] { -9.5f, 9.5f, -5f, 6f };
+            default: return new float[] { -10f, 10f, -5f, 6f };
         }
     }
 

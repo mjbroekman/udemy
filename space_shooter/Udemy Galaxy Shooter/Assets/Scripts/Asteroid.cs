@@ -33,7 +33,7 @@ public class Asteroid : MonoBehaviour
             Debug.LogError("Asteroid::Start() :: We have a problem. The gameManager is null");
         }
 
-        _health = (_gameManager.GetLevel() > 0f) ? 20f * _gameManager.GetLevel() : 20f;
+        _health = (_gameManager.GetLevel() > 0) ? 20f * _gameManager.GetLevel() : 20f;
 
         _rotationSpd = 0.5f * _gameManager.GetLevel();
 

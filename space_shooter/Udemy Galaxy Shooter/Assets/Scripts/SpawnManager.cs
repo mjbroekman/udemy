@@ -13,6 +13,7 @@ public class SpawnManager : MonoBehaviour
     private List<GameObject> _powerUpSpawns;
 
     private Dictionary<string, GameObject> _effectsManager;
+    private Dictionary<string, Vector3> _effectsLocation;
 
     private GameObject[] _objectsInGame;
     private Dictionary<string, GameObject> _objectSpawns;
@@ -61,6 +62,7 @@ public class SpawnManager : MonoBehaviour
         _objectSpawns = new Dictionary<string, GameObject>();
         LoadAssets("Objects");
 
+        _effectsLocation = new Dictionary<string, Vector3>();
         _effectsManager = new Dictionary<string, GameObject>();
         LoadAssets("Effects");
 
@@ -107,6 +109,10 @@ public class SpawnManager : MonoBehaviour
                     break;
                 case "Effects":
                     _effectsManager.Add(newObj.name, newObj);
+                    switch (newObj.name)
+                    {
+                        case "Thruster": _effectsLocation.Add(newObj.name, new Vector3(0f, -3.3f, 0f)); break;
+                    }
                     break;
                 case "Objects":
                     _objectSpawns.Add(newObj.name, newObj);
@@ -166,6 +172,11 @@ public class SpawnManager : MonoBehaviour
         return _effectsManager.ContainsKey(what) ? _effectsManager[what] : null;
     }
 
+    public Vector3 GetEffectLocation(string what)
+    {
+        return _effectsLocation.ContainsKey(what) ? _effectsLocation[what] : new Vector3(0f, 0f, 0f);
+    }
+
     void Update() { }
 
     IEnumerator SpawnEnemyRoutine()
@@ -185,6 +196,7 @@ public class SpawnManager : MonoBehaviour
         {
             //Debug.Log("SpawnManager::SpawnEnemyRoutine() :: Next enemy spawn between " + _minEDelay + " and " + _maxEDelay + " seconds from now.");
             float _delay = Random.Range(_minEDelay, _maxEDelay);
+            Debug.Log("SpawnManager::SpawnEnemyRoutine() :: Waiting " + _delay + " seconds until the next enemy spawn.");
             yield return new WaitForSeconds(_delay);
 
             // Lower the delays with each spawn
@@ -247,28 +259,28 @@ public class SpawnManager : MonoBehaviour
                         _spawnObj = _objectSpawns.ContainsKey("Asteroid") ? _objectSpawns["Asteroid"] : null;
                     }
                 }
-            }
-            if (_spawnObj != null)
-            {
-                Debug.Log("SpawnManager::SpawnObjectRoutine() :: I spawned a thing!");
-                _randomX = Random.Range(-_maxH, _maxH);
-                _spawnV = (Random.Range(0, 2) == 0) ? -_maxV : _maxV;
-                GameObject newSpawn = Instantiate(_spawnObj, new Vector3(_randomX, _spawnV, 0.0f), Quaternion.identity);
-                _objectsInGame = new GameObject[] { newSpawn };
-            }
-            if (_objectsInGame.Length == 1)
-            {
-                Debug.Log("SpawnManager::SpawnObjectRoutine() :: There is a misc object in game.");
-                if (_objectsInGame[0] == null)
+                if (_spawnObj != null)
                 {
-                    Debug.Log("SpawnManager::SpawnObjectRoutine() :: The misc object is actually null. Resetting array.");
-                    _objectsInGame = new GameObject[] { };
+                    Debug.Log("SpawnManager::SpawnObjectRoutine() :: I spawned a thing!");
+                    _randomX = Random.Range(-_maxH, _maxH);
+                    _spawnV = (Random.Range(0, 2) == 0) ? -_maxV : _maxV;
+                    GameObject newSpawn = Instantiate(_spawnObj, new Vector3(_randomX, _spawnV, 0.0f), Quaternion.identity);
+                    _objectsInGame = new GameObject[] { newSpawn };
                 }
-                else if (!_objectsInGame[0].activeInHierarchy)
+                if (_objectsInGame.Length == 1)
                 {
-                    Debug.Log("SpawnManager::SpawnObjectRoutine() :: The misc object is not active. Destroying object and resetting array.");
-                    Destroy(_objectsInGame[0]);
-                    _objectsInGame = new GameObject[] { };
+                    Debug.Log("SpawnManager::SpawnObjectRoutine() :: There is a misc object in game.");
+                    if (_objectsInGame[0] == null)
+                    {
+                        Debug.Log("SpawnManager::SpawnObjectRoutine() :: The misc object is actually null. Resetting array.");
+                        _objectsInGame = new GameObject[] { };
+                    }
+                    else if (!_objectsInGame[0].activeInHierarchy)
+                    {
+                        Debug.Log("SpawnManager::SpawnObjectRoutine() :: The misc object is not active. Destroying object and resetting array.");
+                        Destroy(_objectsInGame[0]);
+                        _objectsInGame = new GameObject[] { };
+                    }
                 }
             }
         }
@@ -290,6 +302,7 @@ public class SpawnManager : MonoBehaviour
         {
             //Debug.Log("SpawnManager::SpawnPowerUpRoutine() :: Next powerup spawn between " + _minPDelay + " and " + _maxPDelay + " seconds from now.");
             float _delay = Random.Range(_minPDelay, _maxPDelay);
+            Debug.Log("SpawnManager::SpawnPowerUpRoutine() :: Waiting " + _delay + " seconds until the next powerup spawn.");
             yield return new WaitForSeconds(_delay);
 
             // Increase the delays with each spawn

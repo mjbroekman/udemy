@@ -121,6 +121,7 @@ public class Player : MonoBehaviour
     /// </summary>
     void Update()
     {
+        if (!_activeEffects.ContainsKey("Thruster")) { SetEffect("Thruster"); }
         CheckPowerUp();
         CalculateMovement();
         if (Input.GetKey(KeyCode.Space) && Time.time > _curCoolDown) { FireLaser(); }
@@ -251,17 +252,26 @@ public class Player : MonoBehaviour
         GameObject _effect = _spawnManager.GetEffect(what);
         if (_effect != null)
         {
-            GameObject newEffect = Instantiate(_effect, transform.position, Quaternion.identity);
-            newEffect.transform.parent = transform;
+            Debug.Log("Setting " + what + " effect on the player");
+            Vector3 _effectPos = _spawnManager.GetEffectLocation(what);
+            Debug.Log("Effect has an offset position of: " + _effectPos);
+            GameObject newEffect = Instantiate(_effect, transform.position, Quaternion.identity, transform);
+            newEffect.transform.localPosition += _effectPos;
+            Debug.Log("Effect position is " + newEffect.transform.localPosition);
+            Debug.Log("Effect Y position is " + newEffect.transform.localPosition.y);
             _activeEffects.Add(what, newEffect);
         }
     }
 
     private void RemoveAllEffects()
     {
-        foreach (string effect in _activeEffects.Keys)
+        ICollection keys = _activeEffects.Keys;
+        foreach (string effect in keys)
         {
-            RemoveEffect(effect);
+            if (effect != "Thruster")
+            {
+                RemoveEffect(effect);
+            }
         }
     }
 

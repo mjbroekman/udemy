@@ -233,5 +233,6 @@ public class UIManager : MonoBehaviour
     {
         _scoreText.text = "Score: " + score;
         if ((int)(score / 100) > _lastBGUpdate) { UpdateBackground(); _lastBGUpdate = (int)(score / 100); }
+        if ((int)(score / 200) > _gameManager.GetLevel()) { _gameManager.SetLevel((int)(score / 200)); }
     }
 }
