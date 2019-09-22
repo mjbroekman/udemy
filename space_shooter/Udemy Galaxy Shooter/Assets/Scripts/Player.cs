@@ -11,7 +11,6 @@ public class Player : MonoBehaviour
     private float _minV;
 
     // Player speed
-    [SerializeField]
     private float _curSpd;
 
     // ActiveEffects
@@ -24,16 +23,13 @@ public class Player : MonoBehaviour
     private float _coolDownMult;
 
     // PowerUp info
-    [SerializeField]
     private bool _tShotEnabled;
     private float _tShotTime;
     private float _tShotDuration;
 
-    [SerializeField]
     private bool _shieldEnabled;
     private float _shieldStrength;
 
-    [SerializeField]
     private bool _boostEnabled;
     private float _boostTime;
     private float _boostDuration;
@@ -43,6 +39,7 @@ public class Player : MonoBehaviour
     private float _curHealth;
     private int _lives;
 
+    // References to other gameObjects
     private SpawnManager _spawnManager;
     private UIManager _uiManager;
     private GameManager _gameManager;
@@ -84,22 +81,13 @@ public class Player : MonoBehaviour
 
         // Get the spawn Manager and UI Manager
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
-        if (_spawnManager == null)
-        {
-            Debug.LogError("Player::Start() :: Houston, we have a problem. There is no Spawn_Manager in the scene.");
-        }
+        if (_spawnManager == null) Debug.LogError("Player::Start() :: Houston, we have a problem. There is no Spawn_Manager in the scene.");
 
         _uiManager = GameObject.Find("UIManager").GetComponent<UIManager>();
-        if (_uiManager == null)
-        {
-            Debug.LogError("Player::Start() :: Houston, we have a problem. There is no UIManager in the scene.");
-        }
+        if (_uiManager == null) Debug.LogError("Player::Start() :: Houston, we have a problem. There is no UIManager in the scene.");
 
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
-        if (_gameManager == null)
-        {
-            Debug.LogError("Player::Start() :: We have a problem. The gameManager is null");
-        }
+        if (_gameManager == null) Debug.LogError("Player::Start() :: We have a problem. The gameManager is null");
 
         float[] _bounds = _gameManager.GetScreenBoundaries(this.gameObject);
         _maxH = _bounds[1];
@@ -116,9 +104,6 @@ public class Player : MonoBehaviour
         _p_spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    /// <summary>
-    /// Cycle through the possible actions in a frame.
-    /// </summary>
     void Update()
     {
         if (!_activeEffects.ContainsKey("Thruster")) { SetEffect("Thruster"); }
@@ -127,9 +112,6 @@ public class Player : MonoBehaviour
         if (Input.GetKey(KeyCode.Space) && Time.time > _curCoolDown) { FireLaser(); }
     }
 
-    /// <summary>
-    /// Check the state of timed powerups
-    /// </summary>
     void CheckPowerUp()
     {
         float curTime = Time.time;
@@ -153,9 +135,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Take user input to move the player around the 2.5d space
-    /// </summary>
     void CalculateMovement()
     {
         // Get player input wasd/arrows
@@ -173,9 +152,6 @@ public class Player : MonoBehaviour
         else if (transform.position.x < -_maxH) transform.position = new Vector3(_maxH, transform.position.y, 0f);
     }
 
-    /// <summary>
-    /// Fire the main laser.
-    /// </summary>
     void FireLaser()
     {
         if (_pf_mainWeapon != null)
@@ -189,10 +165,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Apply damage from hitting something, like an enemy.
-    /// </summary>
-    /// <param name="damage"></param>
     public void TakeDamage(float damage)
     {
         if (_shieldEnabled && _shieldStrength > 0f && _shieldStrength >= damage)
@@ -233,6 +205,46 @@ public class Player : MonoBehaviour
                     Destroy(this.gameObject, 0.1f);
                 }
             }
+            else
+            {
+                int countFires = NumFireEffects();
+                if (_curHealth < 7.5f && countFires < 1)
+                {
+                    AddFireEffect();
+                }
+                if (_curHealth < 5f && countFires < 2)
+                {
+                    AddFireEffect();
+                }
+                if (_curHealth < 2.5f && countFires < 3)
+                {
+                    AddFireEffect();
+                }
+            }
+        }
+    }
+
+    private int NumFireEffects()
+    {
+        int num = 0;
+        for (int i = 1; i <= 3; i++)
+        {
+            if (_activeEffects.ContainsKey("Fire_Effect_" + i)) num++;
+        }
+        return num;
+    }
+
+    private void AddFireEffect()
+    {
+        List<string> _fireEffects = new List<string> { "Fire_Effect_1", "Fire_Effect_2", "Fire_Effect_3" };
+        for (int i = 1; i <= 3; i++)
+        {
+            if (_activeEffects.ContainsKey("Fire_Effect_" + i)) _fireEffects.Remove("Fire_Effect_" + i);
+        }
+        if (_fireEffects.Count > 0)
+        {
+            string fEffect = _fireEffects[Random.Range(0, _fireEffects.Count)];
+            SetEffect(fEffect);
         }
     }
 
@@ -265,13 +277,19 @@ public class Player : MonoBehaviour
 
     private void RemoveAllEffects()
     {
-        ICollection keys = _activeEffects.Keys;
-        foreach (string effect in keys)
+        string[] keys = new string[(_activeEffects.Count - 1)];
+        int i = 0;
+        foreach (string item in _activeEffects.Keys)
         {
-            if (effect != "Thruster")
+            if (item != "Thruster")
             {
-                RemoveEffect(effect);
+                keys[i] = item;
+                i++;
             }
+        }
+        for (int j = 0; j < i; j++)
+        {
+            RemoveEffect(keys[j]);
         }
     }
 

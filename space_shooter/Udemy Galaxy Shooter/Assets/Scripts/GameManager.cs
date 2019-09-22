@@ -23,7 +23,6 @@ public class GameManager : MonoBehaviour
         return _isStarted;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (_is_GameOver)
@@ -40,7 +39,6 @@ public class GameManager : MonoBehaviour
                 SceneManager.LoadScene(0);
             }
         }
-
     }
 
     public void GameOver()
@@ -54,26 +52,22 @@ public class GameManager : MonoBehaviour
 
     public void SetGameState(bool gState)
     {
-        //Debug.Log("GameManager::SetGameState() :: Setting gameState to " + gState);
         _is_GameOver = gState;
     }
 
     public float GetLevel()
     {
-        //Debug.Log("GameManager::GetLevel() :: Returned " + _difficultyLevel + " as level");
         return _difficultyLevel;
     }
 
     public void IncreaseLevel()
     {
         _difficultyLevel++;
-        //Debug.Log("GameManager::IncreaseLevel() :: Increased level to " + _difficultyLevel);
     }
 
     public void SetLevel(int level)
     {
         _difficultyLevel = level;
-        Debug.Log("GameManager::SetLevel() :: Set level to " + _difficultyLevel);
     }
 
     public float[] GetScreenBoundaries(GameObject who)

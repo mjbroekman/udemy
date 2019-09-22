@@ -22,16 +22,10 @@ public class Asteroid : MonoBehaviour
     void Start()
     {
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
-        if (_spawnManager == null)
-        {
-            Debug.LogError("Asteroid::Start() :: Houston, we have a problem. There is no Spawn_Manager in the scene.");
-        }
+        if (_spawnManager == null) Debug.LogError("Asteroid::Start() :: Houston, we have a problem. There is no Spawn_Manager in the scene.");
 
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
-        if (_gameManager == null)
-        {
-            Debug.LogError("Asteroid::Start() :: We have a problem. The gameManager is null");
-        }
+        if (_gameManager == null) Debug.LogError("Asteroid::Start() :: We have a problem. The gameManager is null");
 
         _health = (_gameManager.GetLevel() > 0) ? 20f * _gameManager.GetLevel() : 20f;
 
@@ -104,10 +98,6 @@ public class Asteroid : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Apply damage to the enemy.
-    /// </summary>
-    /// <param name="damage"></param>
     void TakeDamage(float damage)
     {
         //Debug.Log("Asteroid::TakeDamage() :: Took " + damage + " damage. Health remaining == " + _health);

@@ -67,10 +67,7 @@ public class SpawnManager : MonoBehaviour
         LoadAssets("Effects");
 
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
-        if (_gameManager == null)
-        {
-            Debug.LogError("SpawnManager::Start() :: We have a problem. The gameManager is null");
-        }
+        if (_gameManager == null) Debug.LogError("SpawnManager::Start() :: We have a problem. The gameManager is null");
 
         // Set up spawn coroutines
         spawnEnemyRoutine = SpawnEnemyRoutine();
@@ -87,10 +84,6 @@ public class SpawnManager : MonoBehaviour
         return _isStarted;
     }
 
-    /// <summary>
-    /// Load up the assets that the SpawnManager will control
-    /// </summary>
-    /// <param name="asset"></param>
     void LoadAssets(string asset)
     {
         string prefabPath = "Assets/Prefabs/" + asset;
@@ -112,6 +105,9 @@ public class SpawnManager : MonoBehaviour
                     switch (newObj.name)
                     {
                         case "Thruster": _effectsLocation.Add(newObj.name, new Vector3(0f, -3.3f, 0f)); break;
+                        case "Fire_Effect_1": _effectsLocation.Add(newObj.name, new Vector3(1.45f, -3.77f, 0f)); break;
+                        case "Fire_Effect_2": _effectsLocation.Add(newObj.name, new Vector3(-1f, -3.5f, 0f)); break;
+                        case "Fire_Effect_3": _effectsLocation.Add(newObj.name, new Vector3(0.5f, -2.5f, 0f)); break;
                     }
                     break;
                 case "Objects":

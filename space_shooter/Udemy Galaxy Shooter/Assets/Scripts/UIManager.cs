@@ -6,7 +6,6 @@ using UnityEditor;
 
 public class UIManager : MonoBehaviour
 {
-
     private Text _scoreText;
     private SpriteRenderer _background;
 
@@ -30,12 +29,8 @@ public class UIManager : MonoBehaviour
     private SpawnManager _spawnManager;
     private GameManager _gameManager;
 
-    // Start is called before the first frame update
     void Start()
     {
-        //_scoreText = GetComponentInChildren<Text>();
-        //_scoreText.text = "Score: 0";
-
         _textObjects = new Dictionary<string, Text>();
         LoadAssets("UI/Text");
         _imageObjects = new Dictionary<string, Image>();
@@ -58,24 +53,15 @@ public class UIManager : MonoBehaviour
         }
 
         _background = GameObject.Find("Background").GetComponent<SpriteRenderer>();
-        if (_background == null)
-        {
-            Debug.LogError("UIManager::Start() :: Unable to find background component");
-        }
+        if (_background == null) Debug.LogError("UIManager::Start() :: Unable to find background component");
         ResetBackground();
         _lastBGUpdate = 0;
 
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
-        if (_spawnManager == null)
-        {
-            Debug.LogError("UIManager::Start() :: This is going to be a problem. We don't have a SpawnManager active.");
-        }
+        if (_spawnManager == null) Debug.LogError("UIManager::Start() :: This is going to be a problem. We don't have a SpawnManager active.");
 
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
-        if (_gameManager == null)
-        {
-            Debug.LogError("UIManager::Start() :: We have a problem. The gameManager is null");
-        }
+        if (_gameManager == null) Debug.LogError("UIManager::Start() :: We have a problem. The gameManager is null");
 
         _gameManager.SetGameState(false);
         _is_GameOver = _gameManager.GetGameState();
@@ -88,15 +74,10 @@ public class UIManager : MonoBehaviour
         return _uiLoaded;
     }
 
-    // Update is called once per frame
     private void Update()
     {
     }
 
-    /// <summary>
-    /// Load up the assets that the SpawnManager will control
-    /// </summary>
-    /// <param name="asset"></param>
     private void LoadAssets(string asset)
     {
         string prefabPath = "Assets/Prefabs/" + asset;
@@ -185,14 +166,8 @@ public class UIManager : MonoBehaviour
 
     private void FlipBackground(bool flipX, bool flipY)
     {
-        if (flipX)
-        {
-            _background.flipX = !_background.flipX;
-        }
-        if (flipY)
-        {
-            _background.flipY = !_background.flipY;
-        }
+        if (flipX) _background.flipX = !_background.flipX;
+        if (flipY) _background.flipY = !_background.flipY;
     }
 
     public void ResetBackground()

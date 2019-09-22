@@ -11,9 +11,7 @@ public class Laser : MonoBehaviour
     // SpriteRenderer to be able to modify the laser depending on powerups
     private SpriteRenderer _l_spriteRenderer;
 
-    /// <summary>
-    /// Set up the basic stats of this laser instance.
-    /// </summary>
+
     private void Start()
     {
         _power = 2f; // base power is 2 damage
@@ -34,10 +32,6 @@ public class Laser : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Move up from the player to the top of the screen
-    /// Destroy after 2 seconds
-    /// </summary>
     void Update()
     {
         transform.Translate(Vector3.up * _speed * Time.deltaTime);
@@ -45,10 +39,6 @@ public class Laser : MonoBehaviour
         else { Destroy(this.gameObject, 1.9f); }
     }
 
-    /// <summary>
-    /// Return the strength of the laser
-    /// </summary>
-    /// <returns></returns>
     public float GetPower()
     {
         return _power;

@@ -4,41 +4,33 @@ using UnityEngine;
 
 public class Enemy_base : MonoBehaviour
 {
-    // Set base enemy life
+    // Set max enemy life
     private readonly float _maxLife = 10f;
-
-    // Set screen boundaries
-    private float _maxH;
-    private float _maxV;
-    private float[] _bounds;
-    [SerializeField]
     private float _curSpd;
-    private float _randomX;
     private float _curLife;
     private float _baseLife;
 
-    private Player _player;
+    // Set screen boundary variables
+    private float _maxH;
+    private float _maxV;
+    private float[] _bounds;
+    private float _randomX;
+    // The last direction we moved
     private Vector3 _lastMove;
 
+    // Object references to other game objects
+    private Player _player;
     private Animator _e_animator;
     private SpawnManager _spawnManager;
     private GameManager _gameManager;
 
-    // Start is called before the first frame update
     void Start()
     {
-        // Get the spawn Manager
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
-        if (_spawnManager == null)
-        {
-            Debug.LogError("Enemy_base::Start() :: Houston, we have a problem. There is no Spawn_Manager in the scene.");
-        }
+        if (_spawnManager == null) Debug.LogError("Enemy_base::Start() :: Houston, we have a problem. There is no Spawn_Manager in the scene.");
 
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
-        if (_gameManager == null)
-        {
-            Debug.LogError("Enemy_base::Start() :: We have a problem. The gameManager is null");
-        }
+        if (_gameManager == null) Debug.LogError("Enemy_base::Start() :: We have a problem. The gameManager is null");
 
         _bounds = _gameManager.GetScreenBoundaries(this.gameObject);
         _maxH = _bounds[1];
@@ -52,26 +44,16 @@ public class Enemy_base : MonoBehaviour
 
         if (_curLife > _maxLife) { _curLife = _maxLife; }
         _baseLife = _curLife;
-        if (GameObject.Find("Player") != null)
-        {
-            _player = GameObject.Find("Player").GetComponent<Player>();
-        }
-        SetColor();
+
+        if (GameObject.Find("Player") != null) _player = GameObject.Find("Player").GetComponent<Player>();
+
         _e_animator = gameObject.GetComponent<Animator>();
-        if (_e_animator != null)
-        {
-            _e_animator.ResetTrigger("OnEnemyDeath");
-        }
-        else
-        {
-            Debug.LogError("Enemy_base::Start() :: Unable to find Animator component");
-        }
-        //SetScale();
+        if (_e_animator != null) _e_animator.ResetTrigger("OnEnemyDeath");
+        else Debug.LogError("Enemy_base::Start() :: Unable to find Animator component");
+
+        SetColor();
     }
 
-    /// <summary>
-    /// Updates per frame. Move down and warp back to the top of the screen.
-    /// </summary>
     void Update()
     {
         MoveEnemy();
@@ -86,7 +68,6 @@ public class Enemy_base : MonoBehaviour
             float _randomDir = Random.Range(0f, 1f);
             if (_lastMove == Vector3.down)
             {
-                //Debug.Log("Enemy_base::Update() :: Moving horizontally! _lastMove == " + _lastMove + " random direction == " + _randomDir);
                 if (_randomDir > 0.5f)
                 {
                     transform.Translate(Vector3.left * _curSpd * Time.deltaTime);
@@ -102,7 +83,6 @@ public class Enemy_base : MonoBehaviour
             }
             else if (_lastMove == Vector3.left)
             {
-                //Debug.Log("Enemy_base::Update() :: Moving horizontally! _lastMove == " + _lastMove + " random direction == " + _randomDir);
                 if (_randomDir > 0.05f)
                 {
                     transform.Translate(Vector3.left * _curSpd * Time.deltaTime);
@@ -118,7 +98,6 @@ public class Enemy_base : MonoBehaviour
             }
             else if (_lastMove == Vector3.right)
             {
-                //Debug.Log("Enemy_base::Update() :: Moving horizontally! _lastMove == " + _lastMove + " random direction == " + _randomDir);
                 if (_randomDir > 0.95f)
                 {
                     transform.Translate(Vector3.left * _curSpd * Time.deltaTime);
@@ -167,10 +146,6 @@ public class Enemy_base : MonoBehaviour
         Debug.Log("Enemy_base::SetSpeed() :: Speed has changed to " + _curSpd);
     }
 
-    /// <summary>
-    /// Handle collisions
-    /// </summary>
-    /// <param name="other"></param>
     private void OnTriggerEnter2D(Collider2D other)
     {
         string _what = other.tag;
@@ -202,23 +177,14 @@ public class Enemy_base : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Apply damage to the enemy.
-    /// </summary>
-    /// <param name="damage"></param>
     void TakeDamage(float damage, bool _byPlayer)
     {
         _curLife -= damage;
         if (_curLife <= 0)
         {
-            if (_player == null)
-            {
-                Debug.LogError("Enemy_base::TakeDamage() :: Unable to find player object!");
-            }
-            else
-            {
-                if (_byPlayer) { _player.IncreaseScore((int)_baseLife + (int)_curSpd); }
-            }
+            if (_player == null) Debug.LogError("Enemy_base::TakeDamage() :: Unable to find player object!");
+            else if (_byPlayer) { _player.IncreaseScore((int)_baseLife + (int)_curSpd); }
+
             _e_animator.SetTrigger("OnEnemyDeath");
             gameObject.GetComponent<BoxCollider2D>().enabled = false;
             Destroy(this.gameObject, 3f);
