@@ -18,13 +18,16 @@ public class PowerUp : MonoBehaviour
     private float _minV;
     private float _randomX;
 
+    private AudioSource _e_sounds;
+    private AudioManager _audioManager;
+
     // Start is called before the first frame update
     void Start()
     {
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
         if (_gameManager == null)
         {
-            Debug.LogError("Player::Start() :: We have a problem. The gameManager is null");
+            Debug.LogError("PowerUp::Start() :: We have a problem. The gameManager is null");
         }
 
         float[] _bounds = _gameManager.GetScreenBoundaries(this.gameObject);
@@ -32,6 +35,16 @@ public class PowerUp : MonoBehaviour
         _minV = _bounds[2];
         _maxV = _bounds[3];
         _speed += _gameManager.GetLevel() / 2f;
+
+        _audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+        if (_audioManager == null) Debug.LogError("PowerUp::Start() :: We have a problem. The audioManager is null");
+        else
+        {
+            this.gameObject.AddComponent<AudioSource>();
+            _e_sounds = this.GetComponent<AudioSource>();
+            _e_sounds.clip = _audioManager.getEffectSound("PowerUp");
+            _e_sounds.loop = false;
+        }
 
         if (name.Contains("Triple_Shot")) { _variant = "TripleShot"; _strength = 5f; }
         if (name.Contains("Shield")) { _variant = "Shield"; _strength = 20f; }
@@ -44,9 +57,11 @@ public class PowerUp : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.Translate(Vector3.down * _speed * Time.deltaTime);
-        // If the powerup falls off the screen, say goodbye Gracie
-        if (transform.position.y < _minV * 1.1) { Destroy(this.gameObject); }
+        if (gameObject.GetComponent<SpriteRenderer>().enabled)
+        {
+            transform.Translate(Vector3.down * _speed * Time.deltaTime);
+            if (transform.position.y < _minV * 1.1) { Destroy(this.gameObject); }
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -55,8 +70,12 @@ public class PowerUp : MonoBehaviour
         if (_what == "Player")
         {
             Player player = other.transform.GetComponent<Player>();
-            //Debug.Log("PowerUp::OnTriggerEnter2D() :: Attempting to get Player to CollectPowerUp(" + _variant + ", " + _strength + ")");
             if (player != null) { player.CollectPowerUp(_variant, _strength); }
+
+            gameObject.GetComponent<CircleCollider2D>().enabled = false;
+            gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            AudioSource.PlayClipAtPoint(_e_sounds.clip, transform.position);
+
             Destroy(gameObject);
         }
     }

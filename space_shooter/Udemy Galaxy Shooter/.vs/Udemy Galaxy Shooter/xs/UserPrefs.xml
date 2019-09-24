@@ -1,16 +1,17 @@
 ﻿<Properties StartupConfiguration="{91EEB333-A5B3-6BFF-88C8-B5FB6F445E6A}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Asteroid.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Enemy_base.cs">
     <Files>
-      <File FileName="Assets/Scripts/SpawnManager.cs" Line="72" Column="9" />
-      <File FileName="Assets/Scripts/Player.cs" Line="14" Column="1" />
-      <File FileName="Assets/Scripts/Enemy_base.cs" Line="22" Column="28" />
-      <File FileName="Assets/Scripts/Asteroid.cs" Line="117" Column="1" />
-      <File FileName="Assets/Scripts/UIManager.cs" Line="168" Column="6" />
-      <File FileName="Assets/Scripts/GameManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/PowerUp.cs" Line="34" Column="47" />
-      <File FileName="Assets/Scripts/Explosion.cs" Line="10" Column="40" />
-      <File FileName="Assets/Scripts/Laser.cs" Line="42" Column="1" />
+      <File FileName="Assets/Scripts/SpawnManager.cs" Line="349" Column="1" />
+      <File FileName="Assets/Scripts/Player.cs" Line="206" Column="1" />
+      <File FileName="Assets/Scripts/Enemy_base.cs" Line="68" Column="10" />
+      <File FileName="Assets/Scripts/Asteroid.cs" Line="135" Column="36" />
+      <File FileName="Assets/Scripts/UIManager.cs" Line="43" Column="10" />
+      <File FileName="Assets/Scripts/GameManager.cs" Line="73" Column="50" />
+      <File FileName="Assets/Scripts/PowerUp.cs" Line="79" Column="31" />
+      <File FileName="Assets/Scripts/Explosion.cs" Line="25" Column="10" />
+      <File FileName="Assets/Scripts/Laser.cs" Line="38" Column="20" />
       <File FileName="Assets/Scripts/MainMenu.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/AudioManager.cs" Line="56" Column="35" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -22,7 +23,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="b2c2a5db-e9cc-44f5-9d47-f5b05cab4967" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="13edfd68-26c6-4e7c-a9b5-b16499c37b19" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

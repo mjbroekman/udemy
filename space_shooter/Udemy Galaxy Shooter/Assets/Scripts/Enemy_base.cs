@@ -23,6 +23,9 @@ public class Enemy_base : MonoBehaviour
     private Animator _e_animator;
     private SpawnManager _spawnManager;
     private GameManager _gameManager;
+    private AudioSource _e_sounds;
+    private AudioManager _audioManager;
+
 
     void Start()
     {
@@ -40,7 +43,7 @@ public class Enemy_base : MonoBehaviour
         _lastMove = Vector3.down;
         transform.position = new Vector3(_randomX, _maxV, 0.0f);
         SetSpeed();
-        _curLife = 1f + (_gameManager.GetLevel() / 4f);
+        _curLife = 1f + (_gameManager.GetLevel() / 3f);
 
         if (_curLife > _maxLife) { _curLife = _maxLife; }
         _baseLife = _curLife;
@@ -50,13 +53,29 @@ public class Enemy_base : MonoBehaviour
         _e_animator = gameObject.GetComponent<Animator>();
         if (_e_animator != null) _e_animator.ResetTrigger("OnEnemyDeath");
         else Debug.LogError("Enemy_base::Start() :: Unable to find Animator component");
+        _audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+        if (_audioManager == null) Debug.LogError("Enemy_base::Start() :: We have a problem. The audioManager is null");
+        else
+        {
+            this.gameObject.AddComponent<AudioSource>();
+            _e_sounds = this.GetComponent<AudioSource>();
+            _e_sounds.clip = _audioManager.getEffectSound("Explosion");
+            if (_e_sounds == null || _e_sounds.clip == null) { Debug.LogError("Enemy_base::Start() :: Something went wrong and the AudioSource or clip are null"); }
+            _e_sounds.loop = false;
+            _e_sounds.playOnAwake = false;
+            _e_sounds.volume = 0.75f;
+            _e_sounds.pitch = 0.35f;
+        }
 
         SetColor();
     }
 
     void Update()
     {
-        MoveEnemy();
+        if (gameObject.GetComponent<SpriteRenderer>().enabled)
+        {
+            MoveEnemy();
+        }
     }
 
     private void MoveEnemy()
@@ -138,12 +157,12 @@ public class Enemy_base : MonoBehaviour
         else if (_curLife < 8f) colorize.color = new Color(0.65f, 1f, 0f, 1f);
         else if (_curLife < 9f) colorize.color = new Color(1f, 1f, 0f, 1f);
         else if (_curLife <= 10f) colorize.color = new Color(1f, 0.666f, 0f, 1f);
+        Debug.Log("Enemy_base::SetColor() :: Enemy has " + _curLife + " health. Color set to " + colorize.color);
     }
 
     private void SetSpeed()
     {
         _curSpd = 2.0f + ((_gameManager.GetLevel() - 1f) / 2f);
-        Debug.Log("Enemy_base::SetSpeed() :: Speed has changed to " + _curSpd);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -184,10 +203,10 @@ public class Enemy_base : MonoBehaviour
         {
             if (_player == null) Debug.LogError("Enemy_base::TakeDamage() :: Unable to find player object!");
             else if (_byPlayer) { _player.IncreaseScore((int)_baseLife + (int)_curSpd); }
-
             _e_animator.SetTrigger("OnEnemyDeath");
             gameObject.GetComponent<BoxCollider2D>().enabled = false;
-            Destroy(this.gameObject, 3f);
+            AudioSource.PlayClipAtPoint(_e_sounds.clip, transform.position);
+            Destroy(this.gameObject, 1f);
         }
     }
 }

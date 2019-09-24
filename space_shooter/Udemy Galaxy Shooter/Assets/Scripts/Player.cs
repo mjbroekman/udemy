@@ -46,6 +46,8 @@ public class Player : MonoBehaviour
 
     private SpriteRenderer _e_spriteRenderer;
     private SpriteRenderer _p_spriteRenderer;
+    private AudioSource _p_sounds;
+    private AudioManager _audioManager;
 
     private int _score;
 
@@ -99,6 +101,20 @@ public class Player : MonoBehaviour
         {
             _uiManager.UpdateScore(_score);
             _uiManager.UpdateLives(_lives);
+        }
+
+        _audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+        if (_audioManager == null) Debug.LogError("Player::Start() :: We have a problem. The audioManager is null");
+        else
+        {
+            this.gameObject.AddComponent<AudioSource>();
+            _p_sounds = this.GetComponent<AudioSource>();
+            _p_sounds.clip = _audioManager.getEffectSound("Explosion");
+            if (_p_sounds == null || _p_sounds.clip == null) { Debug.LogError("Player::Start() :: Something went wrong and the AudioSource or clip are null"); }
+            _p_sounds.loop = false;
+            _p_sounds.playOnAwake = false;
+            _p_sounds.volume = 0.5f;
+            _p_sounds.pitch = 0.35f;
         }
 
         _p_spriteRenderer = GetComponent<SpriteRenderer>();
@@ -186,6 +202,8 @@ public class Player : MonoBehaviour
             {
                 Debug.Log("Player::TakeDamage() :: This life is over!");
                 _uiManager.ResetBackground();
+                _p_sounds.Play();
+
                 if (_lives > 1)
                 {
                     Debug.Log("Player::TakeDamage() :: ...but another life begins!");
@@ -202,7 +220,7 @@ public class Player : MonoBehaviour
                     _uiManager.UpdateLives(_lives);
                     _spawnManager.OnPlayerDeath(_lives);
                     Debug.Log("Player::TakeDamage() :: I'm going down! I'm hit! It's all over for me!");
-                    Destroy(this.gameObject, 0.1f);
+                    Destroy(this.gameObject, 1f);
                 }
             }
             else
@@ -264,13 +282,13 @@ public class Player : MonoBehaviour
         GameObject _effect = _spawnManager.GetEffect(what);
         if (_effect != null)
         {
-            Debug.Log("Setting " + what + " effect on the player");
+            Debug.Log("Player::SetEffect() :: Setting " + what + " effect on the player");
             Vector3 _effectPos = _spawnManager.GetEffectLocation(what);
-            Debug.Log("Effect has an offset position of: " + _effectPos);
+            Debug.Log("Player::SetEffect() :: Effect has an offset position of: " + _effectPos);
             GameObject newEffect = Instantiate(_effect, transform.position, Quaternion.identity, transform);
             newEffect.transform.localPosition += _effectPos;
-            Debug.Log("Effect position is " + newEffect.transform.localPosition);
-            Debug.Log("Effect Y position is " + newEffect.transform.localPosition.y);
+            Debug.Log("Player::SetEffect() :: Effect position is " + newEffect.transform.localPosition);
+            Debug.Log("Player::SetEffect() :: Effect Y position is " + newEffect.transform.localPosition.y);
             _activeEffects.Add(what, newEffect);
         }
     }
@@ -315,11 +333,7 @@ public class Player : MonoBehaviour
         _shieldEnabled = true;
         _shieldStrength += strength;
         if (!_activeEffects.ContainsKey("Shield_PowerUp_Effect")) { SetEffect("Shield_PowerUp_Effect"); }
-        else
-        {
-            UpdateShield();
-            Debug.Log("Player::EnableShield() :: Increasing current shield strength.");
-        }
+        else { UpdateShield(); }
     }
 
     private void UpdateShield()
@@ -328,7 +342,6 @@ public class Player : MonoBehaviour
         // Change color and Alpha to reflect condition of the shield
         if (_shieldStrength > 20f) { _e_spriteRenderer.color = Color.cyan; }
         else { _e_spriteRenderer.color = new Color(1f - (_shieldStrength / 20f), 0, _shieldStrength / 20f, (_shieldStrength / 40f) + 0.5f); }
-        Debug.Log("Player::UpdateShield() :: Shield can still absorb " + _shieldStrength + " damage before giving out.");
     }
 
     private void DisableShield()

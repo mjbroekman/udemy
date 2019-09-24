@@ -18,7 +18,9 @@ public class Asteroid : MonoBehaviour
     private float _minY;
     private float _maxY;
 
-    // Start is called before the first frame update
+    private AudioSource _e_sounds;
+    private AudioManager _audioManager;
+
     void Start()
     {
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
@@ -27,7 +29,7 @@ public class Asteroid : MonoBehaviour
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
         if (_gameManager == null) Debug.LogError("Asteroid::Start() :: We have a problem. The gameManager is null");
 
-        _health = (_gameManager.GetLevel() > 0) ? 20f * _gameManager.GetLevel() : 20f;
+        _health = 20f;
 
         _rotationSpd = 0.5f * _gameManager.GetLevel();
 
@@ -38,15 +40,33 @@ public class Asteroid : MonoBehaviour
         _maxX = _bounds[1];
         _minY = _bounds[2];
         _maxY = _bounds[3];
+
+        _audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+        if (_audioManager == null) Debug.LogError("Asteroid::Start() :: We have a problem. The audioManager is null");
+        else
+        {
+            this.gameObject.AddComponent<AudioSource>();
+            _e_sounds = this.GetComponent<AudioSource>();
+            _e_sounds.clip = _audioManager.getEffectSound("Explosion");
+            if (_e_sounds == null || _e_sounds.clip == null) { Debug.LogError("Asteroid::Start() :: Something went wrong and the AudioSource or clip are null"); }
+
+            _e_sounds.loop = false;
+            _e_sounds.playOnAwake = false;
+            _e_sounds.volume = 1f;
+            _e_sounds.pitch = 0.1f;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        _spawnManager.DisableEnemySpawn();
-        _spawnManager.DisablePowerUpSpawn();
-        PickDirection();
-        MoveAsteroid();
+        if (gameObject.GetComponent<SpriteRenderer>().enabled)
+        {
+            _spawnManager.DisableEnemySpawn();
+            _spawnManager.DisablePowerUpSpawn();
+            PickDirection();
+            MoveAsteroid();
+        }
     }
 
     private void PickDirection()
@@ -105,8 +125,11 @@ public class Asteroid : MonoBehaviour
         if (_health <= 0)
         {
             gameObject.GetComponent<CircleCollider2D>().enabled = false;
-            _gameManager.IncreaseLevel();
+            gameObject.GetComponent<SpriteRenderer>().enabled = false;
             _ = Instantiate(_spawnManager.GetEffect("Explosion"), transform.position, Quaternion.identity);
+            Debug.Log("Asteroid::TakeDamage() :: Playing explosion sound");
+            AudioSource.PlayClipAtPoint(_e_sounds.clip, transform.position);
+            _gameManager.IncreaseLevel();
             _spawnManager.EnableEnemySpawn();
             _spawnManager.EnablePowerUpSpawn();
             Destroy(this.gameObject);

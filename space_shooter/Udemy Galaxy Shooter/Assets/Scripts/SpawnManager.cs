@@ -47,7 +47,13 @@ public class SpawnManager : MonoBehaviour
     {
         _isStarted = false;
         _gameTime = Time.time;
-        // Set up scene containers and spawnables
+
+        _maxPDelay = 30f;
+        _minPDelay = 15f;
+
+        _maxEDelay = 2f;
+        _minEDelay = 0.75f;
+
         _enemyContainer = new GameObject("Enemy Container");
         _enemyContainer.transform.parent = this.transform;
         _enemySpawns = new Dictionary<string, GameObject>();
@@ -69,13 +75,10 @@ public class SpawnManager : MonoBehaviour
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
         if (_gameManager == null) Debug.LogError("SpawnManager::Start() :: We have a problem. The gameManager is null");
 
-        // Set up spawn coroutines
-        spawnEnemyRoutine = SpawnEnemyRoutine();
         EnableEnemySpawn();
-        spawnPowerUpRoutine = SpawnPowerUpRoutine();
         EnablePowerUpSpawn();
-        spawnObjectRoutine = SpawnObjectRoutine();
         EnableObjectSpawn();
+
         _isStarted = true;
     }
 
@@ -122,45 +125,56 @@ public class SpawnManager : MonoBehaviour
         _gameTime = Time.time;
         EnableEnemySpawn();
         EnablePowerUpSpawn();
+        EnableObjectSpawn();
     }
 
-    // Control the spawning of Enemies
+    private void ResetSpawners()
+    {
+        DisableEnemySpawn();
+        DisablePowerUpSpawn();
+        DisableObjectSpawn();
+        EnableEnemySpawn();
+        EnablePowerUpSpawn();
+        EnableObjectSpawn();
+    }
+
     public void DisableEnemySpawn()
     {
         _stopEnemySpawning = true;
-        if (spawnEnemyRoutine != null) StopCoroutine(spawnEnemyRoutine);
+        if (spawnEnemyRoutine != null) { StopCoroutine(spawnEnemyRoutine); spawnEnemyRoutine = null; }
     }
 
     public void EnableEnemySpawn()
     {
         _stopEnemySpawning = false;
-        if (spawnEnemyRoutine != null) StartCoroutine(spawnEnemyRoutine);
+        if (spawnEnemyRoutine != null) { StartCoroutine(spawnEnemyRoutine); }
+        else { spawnEnemyRoutine = SpawnEnemyRoutine(); StartCoroutine(spawnEnemyRoutine); }
     }
 
-    // Control the spawning of PowerUps
     public void DisablePowerUpSpawn()
     {
         _stopPowerUpSpawning = true;
-        if (spawnPowerUpRoutine != null) StopCoroutine(spawnPowerUpRoutine);
+        if (spawnPowerUpRoutine != null) { StopCoroutine(spawnPowerUpRoutine); spawnPowerUpRoutine = null; }
     }
 
     public void EnablePowerUpSpawn()
     {
         _stopPowerUpSpawning = false;
-        if (spawnPowerUpRoutine != null) StartCoroutine(spawnPowerUpRoutine);
+        if (spawnPowerUpRoutine != null) { StartCoroutine(spawnPowerUpRoutine); }
+        else { spawnPowerUpRoutine = SpawnPowerUpRoutine(); StartCoroutine(spawnPowerUpRoutine); }
     }
 
-    // Control the spawning of misc objects
     public void DisableObjectSpawn()
     {
         _stopObjectSpawning = true;
-        if (spawnObjectRoutine != null) StopCoroutine(spawnObjectRoutine);
+        if (spawnObjectRoutine != null) { StopCoroutine(spawnObjectRoutine); spawnObjectRoutine = null; }
     }
 
     public void EnableObjectSpawn()
     {
         _stopObjectSpawning = false;
-        if (spawnObjectRoutine != null) StartCoroutine(spawnObjectRoutine);
+        if (spawnObjectRoutine != null) { StartCoroutine(spawnObjectRoutine); }
+        else { spawnObjectRoutine = SpawnObjectRoutine(); StartCoroutine(spawnObjectRoutine); }
     }
 
     public GameObject GetEffect(string what)
@@ -177,32 +191,28 @@ public class SpawnManager : MonoBehaviour
 
     IEnumerator SpawnEnemyRoutine()
     {
-        // Set up delays
-        _maxEDelay = 2f;
-        _minEDelay = 0.75f;
         _bossRate = 10f * _maxEDelay;
 
-        GameObject _spawnObj = null;     // Object to use in the Instantiate() call
+        GameObject _spawnObj = null;
         _bounds = _gameManager.GetScreenBoundaries("Enemy");
         _maxH = _bounds[1];
         _minV = _bounds[2];
         _maxV = _bounds[3];
 
+        yield return new WaitForSeconds(2f);
         while (!_stopEnemySpawning)
         {
-            //Debug.Log("SpawnManager::SpawnEnemyRoutine() :: Next enemy spawn between " + _minEDelay + " and " + _maxEDelay + " seconds from now.");
             float _delay = Random.Range(_minEDelay, _maxEDelay);
-            Debug.Log("SpawnManager::SpawnEnemyRoutine() :: Waiting " + _delay + " seconds until the next enemy spawn.");
+
             yield return new WaitForSeconds(_delay);
 
-            // Lower the delays with each spawn
             if (_minEDelay > 0.1f) { _minEDelay -= Time.deltaTime / 1200f; }
             if (_maxEDelay > 1f) { _maxEDelay -= Time.deltaTime / 1800f; }
 
-            // All powerups start from the top of the screen
+            //Debug.Log("SpawnManager::SpawnEnemyRoutine() :: Last delay was " + _delay + "s.  New delays: _maxEDelay = " + _maxEDelay + " _minEDelay = " + _minEDelay);
+
             float _spawnV = _maxV;
 
-            // Figure out what exactly to spawn
             float _randSpawn = Random.Range(0f, 100f);
 
             if (_randSpawn <= 90f)
@@ -230,7 +240,7 @@ public class SpawnManager : MonoBehaviour
 
     IEnumerator SpawnObjectRoutine()
     {
-        GameObject _spawnObj;     // Object to use in the Instantiate() call
+        GameObject _spawnObj;
         _bounds = _gameManager.GetScreenBoundaries("Objects");
         _maxH = _bounds[1];
         _minV = _bounds[2];
@@ -241,42 +251,39 @@ public class SpawnManager : MonoBehaviour
         {
             yield return new WaitForSeconds(30f);
             _spawnObj = null;
-            Debug.Log("SpawnManager::SpawnObjectRoutine() :: There are " + _objectsInGame.Length + " misc objects in the game right now and " + (Time.time - _gameTime) + " seconds have elapsed in the game.");
+
             if (_objectsInGame.Length == 0 && ((Time.time - _gameTime) / 30f) > _gameManager.GetLevel())
             {
-                Debug.Log("SpawnManager::SpawnObjectRoutine() :: Trying to spawn a misc object. Passed time check and objectsInGame is empty");
                 if (Random.Range(0f, 1f) > 0.1f)
                 {
-                    Debug.Log("SpawnManager::SpawnObjectRoutine() :: Trying to spawn a misc object. Passed random chance check 1.");
                     float _randType = Random.Range(0f, 100f);
                     if (_randType < (100f / (float)_objectSpawns.Count))
                     {
-                        Debug.Log("SpawnManager::SpawnObjectRoutine() :: Picked an object from _objectSpawns.");
                         _spawnObj = _objectSpawns.ContainsKey("Asteroid") ? _objectSpawns["Asteroid"] : null;
                     }
                 }
                 if (_spawnObj != null)
                 {
-                    Debug.Log("SpawnManager::SpawnObjectRoutine() :: I spawned a thing!");
                     _randomX = Random.Range(-_maxH, _maxH);
                     _spawnV = (Random.Range(0, 2) == 0) ? -_maxV : _maxV;
                     GameObject newSpawn = Instantiate(_spawnObj, new Vector3(_randomX, _spawnV, 0.0f), Quaternion.identity);
                     _objectsInGame = new GameObject[] { newSpawn };
                 }
-                if (_objectsInGame.Length == 1)
+            }
+            else if (_objectsInGame.Length == 1)
+            {
+                if (_objectsInGame[0] == null)
                 {
-                    Debug.Log("SpawnManager::SpawnObjectRoutine() :: There is a misc object in game.");
-                    if (_objectsInGame[0] == null)
-                    {
-                        Debug.Log("SpawnManager::SpawnObjectRoutine() :: The misc object is actually null. Resetting array.");
-                        _objectsInGame = new GameObject[] { };
-                    }
-                    else if (!_objectsInGame[0].activeInHierarchy)
-                    {
-                        Debug.Log("SpawnManager::SpawnObjectRoutine() :: The misc object is not active. Destroying object and resetting array.");
-                        Destroy(_objectsInGame[0]);
-                        _objectsInGame = new GameObject[] { };
-                    }
+                    EnableEnemySpawn();
+                    EnablePowerUpSpawn();
+                    _objectsInGame = new GameObject[] { };
+                }
+                else if (!_objectsInGame[0].activeInHierarchy)
+                {
+                    EnableEnemySpawn();
+                    EnablePowerUpSpawn();
+                    Destroy(_objectsInGame[0]);
+                    _objectsInGame = new GameObject[] { };
                 }
             }
         }
@@ -285,33 +292,29 @@ public class SpawnManager : MonoBehaviour
     IEnumerator SpawnPowerUpRoutine()
     {
         // Set up delays
-        _maxPDelay = 30f;
-        _minPDelay = 15f;
 
-        GameObject _spawnObj;     // Object to use in the Instantiate() call
+        GameObject _spawnObj;
         _bounds = _gameManager.GetScreenBoundaries("PowerUp");
         _maxH = _bounds[1];
         _minV = _bounds[2];
         _maxV = _bounds[3];
 
+        yield return new WaitForSeconds(2f);
+
         while (!_stopPowerUpSpawning)
         {
-            //Debug.Log("SpawnManager::SpawnPowerUpRoutine() :: Next powerup spawn between " + _minPDelay + " and " + _maxPDelay + " seconds from now.");
             float _delay = Random.Range(_minPDelay, _maxPDelay);
-            Debug.Log("SpawnManager::SpawnPowerUpRoutine() :: Waiting " + _delay + " seconds until the next powerup spawn.");
+
             yield return new WaitForSeconds(_delay);
 
-            // Increase the delays with each spawn
             if (_minPDelay < _maxPDelay) { _minPDelay += Time.deltaTime / 1200f; }
             if (_maxPDelay < 300f) { _maxPDelay += Time.deltaTime / 900f; }
 
-            // All powerups start from the top of the screen
+            //Debug.Log("SpawnManager::SpawnPowerUpRoutine() :: Last delay was " + _delay + "s.  New delays: _maxPDelay = " + _maxPDelay + " _minPDelay = " + _minPDelay);
             float _spawnV = _maxV;
 
-            // Pick a random powerup from the loaded powerUp objects
             int _randType = Random.Range(0, _powerUpSpawns.Count);
             _spawnObj = _powerUpSpawns[_randType];
-            Debug.Log("SpawnManager::SpawnPowerUpRoutine() :: Spawning a " + _spawnObj);
 
             if (_spawnObj != null)
             {
@@ -327,24 +330,27 @@ public class SpawnManager : MonoBehaviour
     {
         _gameTime = Time.time / 2;
         Debug.Log("SpawnManager::OnPlayerDeath() :: Resetting game time to " + _gameTime);
-        // Disable enemy/powerup spawning and stop coroutines if that was the last life
-        if (lives == 0)
-        {
-            // Destroy any lingering powerups and enemies
-            GameObject[] objectsToDestroy = GameObject.FindGameObjectsWithTag("Enemy");
-            for (int i = 0; i < objectsToDestroy.Length; i++)
-            {
-                Destroy(objectsToDestroy[i]);
-            }
-            objectsToDestroy = GameObject.FindGameObjectsWithTag("PowerUp");
-            for (int i = 0; i < objectsToDestroy.Length; i++)
-            {
-                Destroy(objectsToDestroy[i]);
-            }
 
-            DisableEnemySpawn();
-            DisablePowerUpSpawn();
-            DisableObjectSpawn();
+        DisableEnemySpawn();
+        DisablePowerUpSpawn();
+        DisableObjectSpawn();
+
+        GameObject[] objectsToDestroy = GameObject.FindGameObjectsWithTag("Enemy");
+        for (int i = 0; i < objectsToDestroy.Length; i++)
+        {
+            Destroy(objectsToDestroy[i]);
+        }
+        objectsToDestroy = GameObject.FindGameObjectsWithTag("PowerUp");
+        for (int i = 0; i < objectsToDestroy.Length; i++)
+        {
+            Destroy(objectsToDestroy[i]);
+        }
+
+        if (lives > 0)
+        {
+            EnableEnemySpawn();
+            EnablePowerUpSpawn();
+            EnableObjectSpawn();
         }
     }
 }

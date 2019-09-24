@@ -7,13 +7,20 @@ public class GameManager : MonoBehaviour
 {
     private bool _is_GameOver;
     private bool _isStarted;
-    private float _difficultyLevel = 1;
+    private int _difficultyLevel = 1;
+    private AudioManager _audioManager;
 
     // Start is called before the first frame update
     void Start()
     {
         _isStarted = false;
         _difficultyLevel = 1;
+        _audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+        if (_audioManager == null) Debug.LogError("GameManager::Start() :: We have a problem. The audioManager is null");
+        else
+        {
+            _audioManager.SetMusic(_difficultyLevel);
+        }
         _is_GameOver = true;
         _isStarted = true;
     }
@@ -63,11 +70,13 @@ public class GameManager : MonoBehaviour
     public void IncreaseLevel()
     {
         _difficultyLevel++;
+        _audioManager.SetMusic(_difficultyLevel);
     }
 
     public void SetLevel(int level)
     {
         _difficultyLevel = level;
+        _audioManager.SetMusic(_difficultyLevel);
     }
 
     public float[] GetScreenBoundaries(GameObject who)
