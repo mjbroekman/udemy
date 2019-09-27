@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 public class Player : MonoBehaviour
 {
@@ -63,7 +62,7 @@ public class Player : MonoBehaviour
         _laserCoolDown = 0.2f;
         _curCoolDown = 0f;
         _coolDownMult = 1f;
-        _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/Laser.prefab");
+        _pf_mainWeapon = Resources.Load<GameObject>("Prefabs/Weapons/Laser");
 
         // Initialize the active effects
         _activeEffects = new Dictionary<string, GameObject>();
@@ -109,7 +108,7 @@ public class Player : MonoBehaviour
         {
             this.gameObject.AddComponent<AudioSource>();
             _p_sounds = this.GetComponent<AudioSource>();
-            _p_sounds.clip = _audioManager.getEffectSound("Explosion");
+            _p_sounds.clip = _audioManager.GetEffectSound("Explosion");
             if (_p_sounds == null || _p_sounds.clip == null) { Debug.LogError("Player::Start() :: Something went wrong and the AudioSource or clip are null"); }
             _p_sounds.loop = false;
             _p_sounds.playOnAwake = false;
@@ -173,7 +172,8 @@ public class Player : MonoBehaviour
         if (_pf_mainWeapon != null)
         {
             _curCoolDown = Time.time + (_laserCoolDown * _coolDownMult);
-            Instantiate(_pf_mainWeapon, transform.position + new Vector3(0, 0.75f, 0), Quaternion.identity);
+            GameObject laser = Instantiate(_pf_mainWeapon, transform.position + new Vector3(0, 0.75f, 0), Quaternion.identity);
+            if (laser != null) { laser.GetComponent<Laser>().ConfigureLaser("Player"); }
         }
         else
         {
@@ -202,7 +202,8 @@ public class Player : MonoBehaviour
             {
                 Debug.Log("Player::TakeDamage() :: This life is over!");
                 _uiManager.ResetBackground();
-                _p_sounds.Play();
+
+                AudioSource.PlayClipAtPoint(_p_sounds.clip, transform.position);
 
                 if (_lives > 1)
                 {
@@ -211,6 +212,9 @@ public class Player : MonoBehaviour
                     _spawnManager.OnPlayerDeath(_lives);
                     DisablePowerUps();
                     RemoveAllEffects();
+
+                    _ = Instantiate(_spawnManager.GetEffect("Explosion"), transform.position, Quaternion.identity);
+
                     _lives--;
                     _uiManager.UpdateLives(_lives);
                 }
@@ -220,25 +224,48 @@ public class Player : MonoBehaviour
                     _uiManager.UpdateLives(_lives);
                     _spawnManager.OnPlayerDeath(_lives);
                     Debug.Log("Player::TakeDamage() :: I'm going down! I'm hit! It's all over for me!");
+                    _ = Instantiate(_spawnManager.GetEffect("Explosion"), transform.position, Quaternion.identity);
+
                     Destroy(this.gameObject, 1f);
                 }
             }
             else
             {
                 int countFires = NumFireEffects();
-                if (_curHealth < 7.5f && countFires < 1)
-                {
-                    AddFireEffect();
-                }
-                if (_curHealth < 5f && countFires < 2)
-                {
-                    AddFireEffect();
-                }
-                if (_curHealth < 2.5f && countFires < 3)
-                {
-                    AddFireEffect();
-                }
+                if (_curHealth < 7.5f && countFires < 1) { AddFireEffect(); }
+                if (_curHealth < 5f && countFires < 2) { AddFireEffect(); }
+                if (_curHealth < 2.5f && countFires < 3) { AddFireEffect(); }
             }
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        string _what = other.tag;
+        switch (_what)
+        {
+            case "Laser":
+                Laser laser = other.transform.GetComponent<Laser>();
+                if (!laser.IsHostile("Player")) { break; }
+
+                float damage = 0;
+
+                if (laser != null) { damage = laser.GetPower(); }
+
+                Destroy(other.gameObject);
+                TakeDamage(damage);
+                break;
+            case "Player":
+                break;
+            case "Asteroid":
+                break;
+            case "PowerUp":
+                break;
+            case "Enemy":
+                break;
+            default:
+                Debug.Log("Enemy_base::OnTriggerEnter2D() :: Hit something undefined");
+                break;
         }
     }
 
@@ -356,14 +383,14 @@ public class Player : MonoBehaviour
         _tShotEnabled = true;
         _tShotTime = Time.time;
         _tShotDuration += strength;
-        _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/TripleShot.prefab");
+        _pf_mainWeapon = Resources.Load<GameObject>("Prefabs/Weapons/TripleShot");
     }
 
     private void DisableTripleShot()
     {
         _tShotEnabled = false;
         _tShotDuration = 0f;
-        _pf_mainWeapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Weapons/Laser.prefab");
+        _pf_mainWeapon = Resources.Load<GameObject>("Prefabs/Weapons/Laser");
     }
 
     private void EnableSpeedBoost(float strength)

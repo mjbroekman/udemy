@@ -25,6 +25,8 @@ public class Enemy_base : MonoBehaviour
     private GameManager _gameManager;
     private AudioSource _e_sounds;
     private AudioManager _audioManager;
+    private IEnumerator _firingCycle;
+    private GameObject _pf_mainWeapon;
 
 
     void Start()
@@ -38,6 +40,8 @@ public class Enemy_base : MonoBehaviour
         _bounds = _gameManager.GetScreenBoundaries(this.gameObject);
         _maxH = _bounds[1];
         _maxV = _bounds[3];
+
+        _pf_mainWeapon = Resources.Load<GameObject>("Prefabs/Weapons/Laser");
 
         _randomX = Random.Range(-_maxH, _maxH);
         _lastMove = Vector3.down;
@@ -59,15 +63,16 @@ public class Enemy_base : MonoBehaviour
         {
             this.gameObject.AddComponent<AudioSource>();
             _e_sounds = this.GetComponent<AudioSource>();
-            _e_sounds.clip = _audioManager.getEffectSound("Explosion");
+            _e_sounds.clip = _audioManager.GetEffectSound("Explosion");
             if (_e_sounds == null || _e_sounds.clip == null) { Debug.LogError("Enemy_base::Start() :: Something went wrong and the AudioSource or clip are null"); }
             _e_sounds.loop = false;
             _e_sounds.playOnAwake = false;
             _e_sounds.volume = 0.75f;
             _e_sounds.pitch = 0.35f;
         }
-
         SetColor();
+        _firingCycle = FiringCycle();
+        StartCoroutine(_firingCycle);
     }
 
     void Update()
@@ -145,6 +150,26 @@ public class Enemy_base : MonoBehaviour
         }
     }
 
+    IEnumerator FiringCycle()
+    {
+        float _delay = Random.Range(3f, 6f);
+        _delay -= (_curLife / 2f);
+        if (_delay < 0.5f) { _delay = 0.5f; }
+
+        while (gameObject.GetComponent<BoxCollider2D>().enabled)
+        {
+            yield return new WaitForSeconds(_delay);
+
+            if (_pf_mainWeapon != null)
+            {
+                GameObject laserA = Instantiate(_pf_mainWeapon, transform.position + new Vector3(0.1f, -0.75f, 0), Quaternion.identity);
+                GameObject laserB = Instantiate(_pf_mainWeapon, transform.position + new Vector3(-0.1f, -0.75f, 0), Quaternion.identity);
+                if (laserA != null) { laserA.GetComponent<Laser>().ConfigureLaser("Enemy"); }
+                if (laserB != null) { laserB.GetComponent<Laser>().ConfigureLaser("Enemy"); }
+            }
+        }
+    }
+
     private void SetColor()
     {
         SpriteRenderer colorize = transform.GetComponent<SpriteRenderer>();
@@ -176,6 +201,8 @@ public class Enemy_base : MonoBehaviour
                 break;
             case "Laser":
                 Laser laser = other.transform.GetComponent<Laser>();
+                if (!laser.IsHostile("Enemy")) { break; }
+
                 float damage = 0;
 
                 if (laser != null) { damage = laser.GetPower(); }
@@ -205,6 +232,8 @@ public class Enemy_base : MonoBehaviour
             else if (_byPlayer) { _player.IncreaseScore((int)_baseLife + (int)_curSpd); }
             _e_animator.SetTrigger("OnEnemyDeath");
             gameObject.GetComponent<BoxCollider2D>().enabled = false;
+            StopCoroutine(_firingCycle);
+            _firingCycle = null;
             AudioSource.PlayClipAtPoint(_e_sounds.clip, transform.position);
             Destroy(this.gameObject, 1f);
         }

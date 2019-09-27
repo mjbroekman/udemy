@@ -16,7 +16,7 @@ public class Explosion : MonoBehaviour
         {
             this.gameObject.AddComponent<AudioSource>();
             _e_sounds = this.GetComponent<AudioSource>();
-            _e_sounds.clip = _audioManager.getEffectSound("Explosion");
+            _e_sounds.clip = _audioManager.GetEffectSound("Explosion");
             if (_e_sounds == null || _e_sounds.clip == null) { Debug.LogError("Enemy_base::Start() :: Something went wrong and the AudioSource or clip are null"); }
             _e_sounds.loop = false;
             _e_sounds.playOnAwake = false;

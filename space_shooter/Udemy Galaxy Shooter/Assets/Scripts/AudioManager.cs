@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 public class AudioManager : MonoBehaviour
 {
@@ -11,10 +10,12 @@ public class AudioManager : MonoBehaviour
     private AudioClip _weaponsFire;
     private Dictionary<string, AudioClip> _effectsMusic;
     private AudioSource _musicSource;
+    private bool _musicPlaying;
 
     void Start()
     {
         _isStarted = false;
+        _musicPlaying = false;
         _gameMusic = new List<AudioClip>();
         _effectsMusic = new Dictionary<string, AudioClip>();
 
@@ -40,23 +41,24 @@ public class AudioManager : MonoBehaviour
 
     void LoadAssets(string asset)
     {
-        string audioPath = "Assets/Audio/" + asset;
-        Debug.Log("AudioManager::LoadAssets() :: Attempting to load from " + audioPath);
-        foreach (var guid in AssetDatabase.FindAssets("t:AudioClip", new[] { audioPath }))
+        string aPath = "Audio/" + asset;
+        Debug.Log("AudioManager::LoadAssets() :: Attempting to load from " + aPath);
+        AudioClip[] obj = Resources.LoadAll<AudioClip>(aPath);
+        Debug.Log("Found " + obj.Length + " objects in " + aPath);
+        foreach (AudioClip aud in obj)
         {
-            AudioClip newObj = AssetDatabase.LoadAssetAtPath<AudioClip>(AssetDatabase.GUIDToAssetPath(guid));
-            Debug.Log("AudioManager::LoadAssets() :: Loading " + newObj.name);
+            Debug.Log("AudioManager::LoadAssets() :: Attempting to find objects. Found " + aud.name);
             switch (asset)
             {
                 case "Effects":
-                    if (newObj.name.Contains("Explosion")) _effectsMusic.Add("Explosion", newObj);
-                    if (newObj.name.Contains("PowerUp")) _effectsMusic.Add("PowerUp", newObj);
+                    if (aud.name.Contains("Explosion")) _effectsMusic.Add("Explosion", aud);
+                    if (aud.name.Contains("PowerUp")) _effectsMusic.Add("PowerUp", aud);
                     break;
                 case "Music":
-                    _gameMusic.Add(newObj);
+                    _gameMusic.Add(aud);
                     break;
                 case "Weapons":
-                    _weaponsFire = newObj;
+                    _weaponsFire = aud;
                     break;
             }
         }
@@ -64,24 +66,32 @@ public class AudioManager : MonoBehaviour
 
     public void SetMusic(int clip)
     {
-        _musicSource.clip = _gameMusic[clip % _gameMusic.Count];
-        Debug.Log("AudioManager::SetMusic() :: Swapping tracks to " + _musicSource.clip);
-        _musicSource.volume = 0.5f;
-        _musicSource.Play();
+        if (_gameMusic != null && _gameMusic.Count > 0)
+        {
+            _musicSource.clip = _gameMusic[clip % _gameMusic.Count];
+
+            Debug.Log("AudioManager::SetMusic() :: Swapping tracks to " + _musicSource.clip);
+            _musicSource.volume = 0.5f;
+            _musicSource.Play();
+            _musicPlaying = true;
+        }
     }
 
-    public AudioClip getEffectSound(string what)
+    public AudioClip GetEffectSound(string what)
     {
         return _effectsMusic[what];
     }
 
-    public AudioClip getWeaponSound()
+    public AudioClip GetWeaponSound()
     {
         return _weaponsFire;
     }
 
     void Update()
     {
-
+        if (!_musicPlaying)
+        {
+            SetMusic(0);
+        }
     }
 }

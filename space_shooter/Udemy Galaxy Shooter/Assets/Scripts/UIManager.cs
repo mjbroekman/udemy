@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEditor;
 
 public class UIManager : MonoBehaviour
 {
     private Text _scoreText;
     private SpriteRenderer _background;
 
-    private readonly string _spritePath = "Assets/Sprites/UI/";
+    private readonly string _spritePath = "Sprites/UI/";
     private Sprite[] _lifeSprites;
     private Image _livesImage;
 
@@ -24,7 +23,6 @@ public class UIManager : MonoBehaviour
     private Text GameOver;
 
     private IEnumerator _waitForInput;
-    private bool _gameReady;
 
     private SpawnManager _spawnManager;
     private GameManager _gameManager;
@@ -80,29 +78,26 @@ public class UIManager : MonoBehaviour
 
     private void LoadAssets(string asset)
     {
-        string prefabPath = "Assets/Prefabs/" + asset;
-        Debug.Log("UIManager::LoadAssets() :: Attempting to load from " + prefabPath);
-        foreach (var guid in AssetDatabase.FindAssets("t:Object", new[] { prefabPath }))
+        string aPath = "Prefabs/" + asset;
+        Debug.Log("UIManager::LoadAssets() :: Attempting to load from " + aPath);
+        if (asset.Contains("Text"))
         {
-            if (asset.Contains("Text"))
+            Text[] obj = Resources.LoadAll<Text>(aPath);
+            Debug.Log("Found " + obj.Length + " objects in " + aPath);
+            foreach (Text newObj in obj)
             {
-                Text newObj = AssetDatabase.LoadAssetAtPath<Text>(AssetDatabase.GUIDToAssetPath(guid));
-
-                if (newObj != null)
-                {
-                    Debug.Log("UIManager::LoadAssets() :: Loading " + newObj.name);
-                    _textObjects.Add(newObj.name, newObj);
-                }
+                Debug.Log("UIManager::LoadAssets() :: Loading " + newObj.name);
+                _textObjects.Add(newObj.name, newObj);
             }
-            if (asset.Contains("Image"))
+        }
+        if (asset.Contains("Image"))
+        {
+            Image[] obj = Resources.LoadAll<Image>(aPath);
+            Debug.Log("Found " + obj.Length + " objects in " + aPath);
+            foreach (Image newObj in obj)
             {
-                Image newObj = AssetDatabase.LoadAssetAtPath<Image>(AssetDatabase.GUIDToAssetPath(guid));
-
-                if (newObj != null)
-                {
-                    Debug.Log("UIManager::LoadAssets() :: Loading " + newObj.name);
-                    _imageObjects.Add(newObj.name, newObj);
-                }
+                Debug.Log("UIManager::LoadAssets() :: Loading " + newObj.name);
+                _imageObjects.Add(newObj.name, newObj);
             }
         }
     }
@@ -110,19 +105,18 @@ public class UIManager : MonoBehaviour
     private void InitLives()
     {
         _lifeSprites = new Sprite[4];
-        foreach (var guid in AssetDatabase.FindAssets("t:Sprite", new[] { _spritePath + "Lives" }))
+        string aPath = _spritePath + "Lives";
+        Sprite[] obj = Resources.LoadAll<Sprite>(aPath);
+        Debug.Log("Found " + obj.Length + " objects in " + aPath);
+        foreach (Sprite _newSprite in obj)
         {
-            Sprite _newSprite = AssetDatabase.LoadAssetAtPath<Sprite>(AssetDatabase.GUIDToAssetPath(guid));
-            if (_newSprite != null)
+            Debug.Log("UIManager::InitLives() :: Adding sprite for " + _newSprite.name);
+            switch (_newSprite.name)
             {
-                Debug.Log("UIManager::InitLives() :: Adding sprite for " + _newSprite.name);
-                switch (_newSprite.name)
-                {
-                    case "no_lives": _lifeSprites[0] = _newSprite; break;
-                    case "One": _lifeSprites[1] = _newSprite; break;
-                    case "Two": _lifeSprites[2] = _newSprite; break;
-                    case "Three": _lifeSprites[3] = _newSprite; break;
-                }
+                case "no_lives": _lifeSprites[0] = _newSprite; break;
+                case "One": _lifeSprites[1] = _newSprite; break;
+                case "Two": _lifeSprites[2] = _newSprite; break;
+                case "Three": _lifeSprites[3] = _newSprite; break;
             }
         }
     }

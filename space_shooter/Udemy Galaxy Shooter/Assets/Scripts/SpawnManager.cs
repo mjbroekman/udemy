@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 public class SpawnManager : MonoBehaviour
 {
@@ -89,11 +88,12 @@ public class SpawnManager : MonoBehaviour
 
     void LoadAssets(string asset)
     {
-        string prefabPath = "Assets/Prefabs/" + asset;
-        Debug.Log("SpawnManager::LoadAssets() :: Attempting to load from " + prefabPath);
-        foreach (var guid in AssetDatabase.FindAssets("t:GameObject", new[] { prefabPath }))
+        string aPath = "Prefabs/" + asset;
+        Debug.Log("SpawnManager::LoadAssets() :: Attempting to load from " + aPath);
+        GameObject[] obj = Resources.LoadAll<GameObject>(aPath);
+        Debug.Log("Found " + obj.Length + " objects in " + aPath);
+        foreach (GameObject newObj in obj)
         {
-            GameObject newObj = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
             Debug.Log("SpawnManager::LoadAssets() :: Loading " + newObj.name);
             switch (asset)
             {
@@ -123,9 +123,7 @@ public class SpawnManager : MonoBehaviour
     public void RestartGame()
     {
         _gameTime = Time.time;
-        EnableEnemySpawn();
-        EnablePowerUpSpawn();
-        EnableObjectSpawn();
+        ResetSpawners();
     }
 
     private void ResetSpawners()

@@ -42,7 +42,7 @@ public class PowerUp : MonoBehaviour
         {
             this.gameObject.AddComponent<AudioSource>();
             _e_sounds = this.GetComponent<AudioSource>();
-            _e_sounds.clip = _audioManager.getEffectSound("PowerUp");
+            _e_sounds.clip = _audioManager.GetEffectSound("PowerUp");
             _e_sounds.loop = false;
         }
 
