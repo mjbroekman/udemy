@@ -21,6 +21,7 @@ public class UIManager : MonoBehaviour
 
     private bool _is_GameOver;
     private Text GameOver;
+    private Text SubText;
 
     private IEnumerator _waitForInput;
 
@@ -175,6 +176,15 @@ public class UIManager : MonoBehaviour
         if (_textObjects.ContainsKey("Game_Over_Text") && _textObjects["Game_Over_Text"] != null)
         {
             GameOver = Instantiate(_textObjects["Game_Over_Text"], transform);
+            if (GameOver.transform.childCount > 0)
+            {
+                Transform gOverChild = GameOver.transform.GetChild(0);
+                if (gOverChild != null && gOverChild.gameObject.name == "SubText")
+                {
+                    SubText = gOverChild.gameObject.GetComponent<Text>();
+                    if (SubText != null) { SubText.text = "Press 'R' to Restart. Press 'M' to go to the Main Menu. Press Escape to Quit."; }
+                }
+            }
             GameOver.text = "GAME OVER";
             _is_GameOver = true;
             StartCoroutine(_waitForInput);

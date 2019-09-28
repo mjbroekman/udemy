@@ -127,7 +127,7 @@ public class Asteroid : MonoBehaviour
             gameObject.GetComponent<CircleCollider2D>().enabled = false;
             gameObject.GetComponent<SpriteRenderer>().enabled = false;
             _ = Instantiate(_spawnManager.GetEffect("Explosion"), transform.position, Quaternion.identity);
-            Debug.Log("Asteroid::TakeDamage() :: Playing explosion sound");
+            //Debug.Log("Asteroid::TakeDamage() :: Playing explosion sound");
             AudioSource.PlayClipAtPoint(_e_sounds.clip, transform.position);
             _gameManager.IncreaseLevel();
             _spawnManager.EnableEnemySpawn();

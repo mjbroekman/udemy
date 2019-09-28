@@ -140,12 +140,12 @@ public class Player : MonoBehaviour
         }
         if (_tShotEnabled && (curTime - _tShotTime) > _tShotDuration)
         {
-            Debug.Log("Player::CheckPowerUp() :: TripleShot powerup expired");
+            //Debug.Log("Player::CheckPowerUp() :: TripleShot powerup expired");
             DisableTripleShot();
         }
         if (_boostEnabled && (curTime - _boostTime) > _boostDuration)
         {
-            Debug.Log("Player::CheckPowerUp() :: Boost powerup expired");
+            //Debug.Log("Player::CheckPowerUp() :: Boost powerup expired");
             DisableSpeedBoost();
         }
     }
@@ -311,11 +311,11 @@ public class Player : MonoBehaviour
         {
             Debug.Log("Player::SetEffect() :: Setting " + what + " effect on the player");
             Vector3 _effectPos = _spawnManager.GetEffectLocation(what);
-            Debug.Log("Player::SetEffect() :: Effect has an offset position of: " + _effectPos);
+            //Debug.Log("Player::SetEffect() :: Effect has an offset position of: " + _effectPos);
             GameObject newEffect = Instantiate(_effect, transform.position, Quaternion.identity, transform);
             newEffect.transform.localPosition += _effectPos;
-            Debug.Log("Player::SetEffect() :: Effect position is " + newEffect.transform.localPosition);
-            Debug.Log("Player::SetEffect() :: Effect Y position is " + newEffect.transform.localPosition.y);
+            //Debug.Log("Player::SetEffect() :: Effect position is " + newEffect.transform.localPosition);
+            //Debug.Log("Player::SetEffect() :: Effect Y position is " + newEffect.transform.localPosition.y);
             _activeEffects.Add(what, newEffect);
         }
     }

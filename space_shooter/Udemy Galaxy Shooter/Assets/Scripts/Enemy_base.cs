@@ -182,7 +182,7 @@ public class Enemy_base : MonoBehaviour
         else if (_curLife < 8f) colorize.color = new Color(0.65f, 1f, 0f, 1f);
         else if (_curLife < 9f) colorize.color = new Color(1f, 1f, 0f, 1f);
         else if (_curLife <= 10f) colorize.color = new Color(1f, 0.666f, 0f, 1f);
-        Debug.Log("Enemy_base::SetColor() :: Enemy has " + _curLife + " health. Color set to " + colorize.color);
+        //Debug.Log("Enemy_base::SetColor() :: Enemy has " + _curLife + " health. Color set to " + colorize.color);
     }
 
     private void SetSpeed()

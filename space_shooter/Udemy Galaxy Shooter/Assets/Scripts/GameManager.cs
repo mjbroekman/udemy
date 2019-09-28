@@ -6,21 +6,27 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     private bool _is_GameOver;
+    private bool _is_GamePaused;
     private bool _isStarted;
     private int _difficultyLevel = 1;
     private AudioManager _audioManager;
+    private GameObject _pauseMenu;
 
     // Start is called before the first frame update
     void Start()
     {
         _isStarted = false;
         _difficultyLevel = 1;
+        _is_GamePaused = false;
+
         _audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         if (_audioManager == null) Debug.LogError("GameManager::Start() :: We have a problem. The audioManager is null");
-        else
-        {
-            _audioManager.SetMusic(_difficultyLevel);
-        }
+        else { _audioManager.SetMusic(_difficultyLevel); }
+
+        _pauseMenu = GameObject.Find("Pause_Menu_Panel");
+        if (_pauseMenu == null) { Debug.LogError("Unable to find Pause Menu"); }
+        else { _pauseMenu.SetActive(false); }
+
         _is_GameOver = true;
         _isStarted = true;
     }
@@ -34,18 +40,41 @@ public class GameManager : MonoBehaviour
     {
         if (_is_GameOver)
         {
-            if (Input.GetKey(KeyCode.R))
+            if (Input.GetKeyDown(KeyCode.R))
             {
                 _is_GameOver = false;
-                // Main game play is in Scene 1
                 SceneManager.LoadScene(1);
             }
-            if (Input.GetKey(KeyCode.M))
+            if (Input.GetKeyDown(KeyCode.M))
             {
-                // Load the main menu (scene 0)
-                SceneManager.LoadScene(0);
+                GoMainMenu();
+            }
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Q))
+            {
+                Application.Quit();
             }
         }
+        if (!_is_GamePaused && Input.GetKeyDown(KeyCode.P))
+        {
+            PauseGame();
+        }
+    }
+
+    public void PauseGame()
+    {
+        _pauseMenu.SetActive(true);
+        Time.timeScale = 0;
+    }
+
+    public void UnPause()
+    {
+        _pauseMenu.SetActive(false);
+        Time.timeScale = 1;
+    }
+
+    public void GoMainMenu()
+    {
+        SceneManager.LoadScene(0);
     }
 
     public void GameOver()
