@@ -27,7 +27,8 @@ public class Enemy_base : MonoBehaviour
     private AudioManager _audioManager;
     private IEnumerator _firingCycle;
     private GameObject _pf_mainWeapon;
-
+    private GameObject _e_ThrusterA;
+    private GameObject _e_ThrusterB;
 
     void Start()
     {
@@ -73,6 +74,14 @@ public class Enemy_base : MonoBehaviour
         SetColor();
         _firingCycle = FiringCycle();
         StartCoroutine(_firingCycle);
+        _e_ThrusterA = Instantiate(_spawnManager.GetEffect("Thruster"), transform.position, Quaternion.identity, transform);
+        _e_ThrusterB = Instantiate(_spawnManager.GetEffect("Thruster"), transform.position, Quaternion.identity, transform);
+        _e_ThrusterA.transform.localPosition += new Vector3(-0.375f, 2.5f, 0f);
+        _e_ThrusterB.transform.localPosition += new Vector3(0.375f, 2.5f, 0f);
+        _e_ThrusterA.transform.localScale = new Vector3(0.1f, 0.5f, 0f);
+        _e_ThrusterB.transform.localScale = new Vector3(0.1f, 0.5f, 0f);
+        _e_ThrusterA.transform.Rotate(new Vector3(-180f, 0f, 0f));
+        _e_ThrusterB.transform.Rotate(new Vector3(-180f, 0f, 0f));
     }
 
     void Update()
@@ -182,7 +191,6 @@ public class Enemy_base : MonoBehaviour
         else if (_curLife < 8f) colorize.color = new Color(0.65f, 1f, 0f, 1f);
         else if (_curLife < 9f) colorize.color = new Color(1f, 1f, 0f, 1f);
         else if (_curLife <= 10f) colorize.color = new Color(1f, 0.666f, 0f, 1f);
-        //Debug.Log("Enemy_base::SetColor() :: Enemy has " + _curLife + " health. Color set to " + colorize.color);
     }
 
     private void SetSpeed()
@@ -232,6 +240,8 @@ public class Enemy_base : MonoBehaviour
             else if (_byPlayer) { _player.IncreaseScore((int)_baseLife + (int)_curSpd); }
             _e_animator.SetTrigger("OnEnemyDeath");
             gameObject.GetComponent<BoxCollider2D>().enabled = false;
+            Destroy(_e_ThrusterA);
+            Destroy(_e_ThrusterB);
             StopCoroutine(_firingCycle);
             _firingCycle = null;
             AudioSource.PlayClipAtPoint(_e_sounds.clip, transform.position);
