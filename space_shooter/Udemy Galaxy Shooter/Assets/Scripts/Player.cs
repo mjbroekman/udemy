@@ -173,7 +173,30 @@ public class Player : MonoBehaviour
         {
             _curCoolDown = Time.time + (_laserCoolDown * _coolDownMult);
             GameObject laser = Instantiate(_pf_mainWeapon, transform.position + new Vector3(0, 0.75f, 0), Quaternion.identity);
-            if (laser != null) { laser.GetComponent<Laser>().ConfigureLaser("Player"); }
+            if (laser != null)
+            {
+                Laser laserComp = laser.GetComponent<Laser>();
+                if (laserComp == null)
+                {
+                    Debug.Log("Player::FireLaser() :: Laser Component is null. Are we a TripleShot?");
+                    Laser[] laserComps = laser.GetComponentsInChildren<Laser>();
+                    if (laserComps.Length == 0)
+                    {
+                        Debug.Log("Player::FireLaser() :: Laser children have no Laser components!");
+                    }
+                    else
+                    {
+                        for (int i = 0; i < laserComps.Length; i++)
+                        {
+                            laserComps[i].ConfigureLaser("Player");
+                        }
+                    }
+                }
+                else
+                {
+                    laserComp.ConfigureLaser("Player");
+                }
+            }
         }
         else
         {

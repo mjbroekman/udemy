@@ -242,7 +242,10 @@ public class Enemy_base : MonoBehaviour
             gameObject.GetComponent<BoxCollider2D>().enabled = false;
             Destroy(_e_ThrusterA);
             Destroy(_e_ThrusterB);
-            StopCoroutine(_firingCycle);
+            if (_firingCycle != null)
+            {
+                StopCoroutine(_firingCycle);
+            }
             _firingCycle = null;
             AudioSource.PlayClipAtPoint(_e_sounds.clip, transform.position);
             Destroy(this.gameObject, 1f);

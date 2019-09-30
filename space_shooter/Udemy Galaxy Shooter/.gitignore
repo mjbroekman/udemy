@@ -58,3 +58,6 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+# mono crash files
+mono_crash*.json
+mono_crash*.blob

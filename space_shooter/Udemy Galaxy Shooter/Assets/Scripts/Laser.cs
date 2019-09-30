@@ -74,7 +74,10 @@ public class Laser : MonoBehaviour
     void Update()
     {
         if (!_isConfigured && _owner != null) { ConfigureLaser(_owner); }
+        if (_direction != Vector3.up && _direction != Vector3.down) { ConfigureLaser(_owner); }
+
         transform.Translate(_direction * _speed * Time.deltaTime);
+
         if (transform.parent != null) { Destroy(transform.parent.gameObject, 1.9f); }
         else { Destroy(this.gameObject, 1.9f); }
     }
@@ -106,6 +109,7 @@ public class Laser : MonoBehaviour
         if (_owner == who) { return false; }
         return true;
     }
+
     public float GetPower()
     {
         return _power;
