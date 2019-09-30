@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     private int _difficultyLevel = 1;
     private AudioManager _audioManager;
     private GameObject _pauseMenu;
+    private Animator _pmAnimator;
 
     // Start is called before the first frame update
     void Start()
@@ -24,8 +25,13 @@ public class GameManager : MonoBehaviour
         else { _audioManager.SetMusic(_difficultyLevel); }
 
         _pauseMenu = GameObject.Find("Pause_Menu_Panel");
-        if (_pauseMenu == null) { Debug.LogError("Unable to find Pause Menu"); }
-        else { _pauseMenu.SetActive(false); }
+        if (_pauseMenu == null) { Debug.LogError("GameManager::Start() :: Unable to find Pause Menu"); }
+        else
+        {
+            _pauseMenu.SetActive(false);
+            _pmAnimator = _pauseMenu.GetComponent<Animator>();
+            if (_pmAnimator == null) { Debug.LogError("GameManager::Start() :: Unable to grab pause menu animator."); }
+        }
 
         _is_GameOver = true;
         _isStarted = true;
@@ -63,6 +69,7 @@ public class GameManager : MonoBehaviour
     public void PauseGame()
     {
         _pauseMenu.SetActive(true);
+        _pmAnimator.SetBool("isPaused", true);
         Time.timeScale = 0;
     }
 
