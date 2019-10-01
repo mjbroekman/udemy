@@ -120,7 +120,7 @@ public class GameManager : MonoBehaviour
         switch (who.tag)
         {
             // return float[] { minX, maxX, minY, maxY }
-            case "Player": return new float[] { -10f, 10f, -4f, 4f };
+            case "Player": return new float[] { -10f, 10f, -3.75f, 4f };
             case "Asteroid": return new float[] { -9.5f, 9.5f, -5f, 5.5f };
             default: return new float[] { -9.5f, 9.5f, -5f, 6f };
         }

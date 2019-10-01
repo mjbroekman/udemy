@@ -50,11 +50,13 @@ public class Player : MonoBehaviour
 
     private int _score;
 
+    private bool _newLife;
+    private bool _flyUp;
+    private bool _flyDown;
+
     void Start()
     {
-        // Set starting position to near the bottom of the screen
-        transform.position = new Vector3(0, -3, 0);
-
+        SetStartingPosition();
         // Set base speed as well as max/min speed
         _curSpd = 5.0f;
 
@@ -122,9 +124,29 @@ public class Player : MonoBehaviour
     void Update()
     {
         if (!_activeEffects.ContainsKey("Thruster")) { SetEffect("Thruster"); }
-        CheckPowerUp();
-        CalculateMovement();
-        if (Input.GetKey(KeyCode.Space) && Time.time > _curCoolDown) { FireLaser(); }
+        if (_newLife && _lives > 0)
+        {
+            if (!_flyUp && transform.position.y < -1f) { transform.Translate(Vector3.up * _curSpd * Time.deltaTime); }
+            else if (!_flyUp && transform.position.y >= -1f) { _flyUp = true; }
+            if (_flyUp && transform.position.y > -3.5f) { transform.Translate(Vector3.down * _curSpd * Time.deltaTime); }
+            else if (_flyUp && transform.position.y <= -3.5f) { _flyDown = true; }
+
+            if (_flyUp && _flyDown) { _newLife = false; }
+        }
+        else if (_lives > 0)
+        {
+            CheckPowerUp();
+            CalculateMovement();
+            if (Input.GetKey(KeyCode.Space) && Time.time > _curCoolDown) { FireLaser(); }
+        }
+    }
+
+    private void SetStartingPosition()
+    {
+        transform.position = new Vector3(0f, -6.5f, 0f);
+        _newLife = true;
+        _flyUp = false;
+        _flyDown = false;
     }
 
     void CheckPowerUp()
@@ -228,25 +250,22 @@ public class Player : MonoBehaviour
 
                 AudioSource.PlayClipAtPoint(_p_sounds.clip, transform.position);
 
-                if (_lives > 1)
+                DisablePowerUps();
+                RemoveAllEffects();
+                _lives--;
+                _uiManager.UpdateLives(_lives);
+                _spawnManager.OnPlayerDeath(_lives);
+                _ = Instantiate(_spawnManager.GetEffect("Explosion"), transform.position, Quaternion.identity);
+                SetStartingPosition();
+
+                if (_lives > 0)
                 {
                     Debug.Log("Player::TakeDamage() :: ...but another life begins!");
                     _curHealth = _maxHealth;
-                    _spawnManager.OnPlayerDeath(_lives);
-                    DisablePowerUps();
-                    RemoveAllEffects();
-                    _ = Instantiate(_spawnManager.GetEffect("Explosion"), transform.position, Quaternion.identity);
-                    _lives--;
-                    _uiManager.UpdateLives(_lives);
                 }
                 else
                 {
-                    _lives--;
-                    _uiManager.UpdateLives(_lives);
-                    _spawnManager.OnPlayerDeath(_lives);
                     Debug.Log("Player::TakeDamage() :: I'm going down! I'm hit! It's all over for me!");
-                    _ = Instantiate(_spawnManager.GetEffect("Explosion"), transform.position, Quaternion.identity);
-                    _p_spriteRenderer.enabled = false;
                     Destroy(this.gameObject, 1f);
                 }
             }

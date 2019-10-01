@@ -68,6 +68,8 @@ public class Laser : MonoBehaviour
             }
         }
 
+        if (!_isConfigured && _owner != null) { ConfigureLaser(_owner); }
+
         AudioSource.PlayClipAtPoint(_l_sounds.clip, transform.position);
     }
 
