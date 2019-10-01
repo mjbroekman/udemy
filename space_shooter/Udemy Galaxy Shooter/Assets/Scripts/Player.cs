@@ -235,9 +235,7 @@ public class Player : MonoBehaviour
                     _spawnManager.OnPlayerDeath(_lives);
                     DisablePowerUps();
                     RemoveAllEffects();
-
                     _ = Instantiate(_spawnManager.GetEffect("Explosion"), transform.position, Quaternion.identity);
-
                     _lives--;
                     _uiManager.UpdateLives(_lives);
                 }
@@ -248,7 +246,7 @@ public class Player : MonoBehaviour
                     _spawnManager.OnPlayerDeath(_lives);
                     Debug.Log("Player::TakeDamage() :: I'm going down! I'm hit! It's all over for me!");
                     _ = Instantiate(_spawnManager.GetEffect("Explosion"), transform.position, Quaternion.identity);
-
+                    _p_spriteRenderer.enabled = false;
                     Destroy(this.gameObject, 1f);
                 }
             }

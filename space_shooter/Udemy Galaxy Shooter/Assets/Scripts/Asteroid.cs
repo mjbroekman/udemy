@@ -31,7 +31,7 @@ public class Asteroid : MonoBehaviour
 
         _health = 20f;
 
-        _rotationSpd = 0.5f * _gameManager.GetLevel();
+        _rotationSpd = 0.5f;
 
         PickDirection();
 
