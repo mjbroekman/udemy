@@ -6,6 +6,9 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     private Text _scoreText;
+    private int _score;
+    private Text _highScoreText;
+    private int _highScore;
     private SpriteRenderer _background;
 
     private readonly string _spritePath = "Sprites/UI/";
@@ -42,6 +45,13 @@ public class UIManager : MonoBehaviour
         }
         _textObjects["Score_Text"].text = "Score: 0";
 
+        if (_textObjects.ContainsKey("High_Score") && _textObjects["High_Score"] != null)
+        {
+            _highScoreText = Instantiate(_textObjects["High_Score"], transform);
+            _highScore = PlayerPrefs.HasKey("CurrentHighScore") ? PlayerPrefs.GetInt("CurrentHighScore") : 0;
+            _highScoreText.text = "High Score:\n" + _highScore;
+        }
+
         if (_imageObjects.ContainsKey("Lives_Display") && _imageObjects["Lives_Display"] != null)
         {
             GameObject _livesDisplay = GameObject.Find("Lives_Display");
@@ -55,6 +65,7 @@ public class UIManager : MonoBehaviour
         if (_background == null) Debug.LogError("UIManager::Start() :: Unable to find background component");
         ResetBackground();
         _lastBGUpdate = 0;
+        _score = 0;
 
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
         if (_spawnManager == null) Debug.LogError("UIManager::Start() :: This is going to be a problem. We don't have a SpawnManager active.");
@@ -188,15 +199,13 @@ public class UIManager : MonoBehaviour
             GameOver.text = "GAME OVER";
             _is_GameOver = true;
             StartCoroutine(_waitForInput);
+            UpdateHighScore();
         }
     }
 
     private void FlickerGameOver()
     {
-        if (_is_GameOver)
-        {
-            GameOver.enabled = !GameOver.enabled;
-        }
+        if (_is_GameOver) { GameOver.enabled = !GameOver.enabled; }
     }
 
     IEnumerator WaitForInput()
@@ -208,9 +217,19 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void UpdateHighScore()
+    {
+        if (_score > _highScore) { _highScore = _score; }
+
+        _highScoreText.text = "High Score:\n" + _highScore;
+        PlayerPrefs.SetInt("CurrentHighScore", _highScore);
+        PlayerPrefs.Save();
+    }
+
     public void UpdateScore(int score)
     {
-        _scoreText.text = "Score: " + score;
+        _score = score;
+        _scoreText.text = "Score: " + _score;
         if ((int)(score / 100) > _lastBGUpdate) { UpdateBackground(); _lastBGUpdate = (int)(score / 100); }
         if ((int)(score / 200) > _gameManager.GetLevel()) { _gameManager.SetLevel((int)(score / 200)); }
     }

@@ -204,8 +204,8 @@ public class Enemy_base : MonoBehaviour
         switch (_what)
         {
             case "Player":
-                if (_player != null) { _player.TakeDamage(_curSpd); }
                 TakeDamage(_maxLife, true);
+                if (_player != null) { _player.TakeDamage(_curSpd); }
                 break;
             case "Laser":
                 Laser laser = other.transform.GetComponent<Laser>();
