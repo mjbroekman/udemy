@@ -219,10 +219,46 @@ public class UIManager : MonoBehaviour
 
     public void UpdateHighScore()
     {
-        if (_score > _highScore) { _highScore = _score; }
+        if (_score > _highScore)
+        {
+            _highScore = _score;
+            _highScoreText.text = "High Score:\n" + _highScore;
+            PlayerPrefs.SetInt("CurrentHighScore", _highScore);
+        }
+        // Update the Top10 list of scores
+        // This is janky as heck but I can't figure out a better way to do it.
+        //  1. Load the TopScores pref if it exists
+        //  2. Split the pref string by the comma character (need the [0] because a single character string is still a string and not implicitly a char)
+        //  3. Push the array values into a List.
+        //  4. Sort the List (which defaults to 'ascending'.
+        //  5. Reverse the List (so 0 has the highest value.
+        //  6. Push the first 10 entries into a comma-separated string.
+        string _scorePref = "";
+        string[] _topScores = PlayerPrefs.HasKey("TopScores") ? PlayerPrefs.GetString("TopScores").Split(","[0]) : new string[0];
+        List<int> _scoreList = new List<int>();
+        for (int i = 0; i < _topScores.Length; i++)
+        {
+            if (_topScores[i] != null)
+            {
+                int tmp;
+                int.TryParse(_topScores[i], out tmp);
+                if (tmp > 0) { _scoreList.Add(tmp); }
+            }
+        }
+        _scoreList.Add(_score);
+        _scoreList.Sort();
+        _scoreList.Reverse();
+        int s = 0;
+        foreach (int score in _scoreList)
+        {
+            if (_scorePref == "") { _scorePref = "" + score; }
+            else { _scorePref += "," + score; }
+            s++;
+            if (s == 10) { break; }
+        }
+        PlayerPrefs.SetString("TopScores", _scorePref);
 
-        _highScoreText.text = "High Score:\n" + _highScore;
-        PlayerPrefs.SetInt("CurrentHighScore", _highScore);
+        // Save the updated prefs (if any)
         PlayerPrefs.Save();
     }
 

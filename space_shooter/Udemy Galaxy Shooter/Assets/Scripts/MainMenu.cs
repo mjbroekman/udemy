@@ -52,6 +52,8 @@ public class MainMenu : MonoBehaviour
 
     public void ShowScores()
     {
+        Debug.Log("MainMenu::ShowScores() :: Switching to scene 2");
+        SceneManager.LoadScene(2);
     }
 
     private void InitCredits()

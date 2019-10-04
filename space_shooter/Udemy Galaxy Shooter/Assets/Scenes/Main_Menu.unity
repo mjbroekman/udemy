@@ -188,7 +188,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: High Scores
+  m_Text: Top Scores
 --- !u!222 &108998935
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1275,7 +1275,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1601466014}
-        m_MethodName: QuitGame
+        m_MethodName: ShowScores
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
