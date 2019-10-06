@@ -44,9 +44,9 @@ public class UIManager : MonoBehaviour
         if (_textObjects.ContainsKey("Score_Text") && _textObjects["Score_Text"] != null)
         {
             _scoreText = Instantiate(_textObjects["Score_Text"], transform);
-            _scoreText.text = "Score: ";
+            _scoreText.text = "Score:\n";
         }
-        _textObjects["Score_Text"].text = "Score: 0";
+        _textObjects["Score_Text"].text = "Score:\n0";
 
         if (_textObjects.ContainsKey("High_Score") && _textObjects["High_Score"] != null)
         {
@@ -226,7 +226,7 @@ public class UIManager : MonoBehaviour
     public void UpdateScore(int score)
     {
         _score = score;
-        _scoreText.text = "Score: " + _score;
+        _scoreText.text = "Score:\n" + _score;
         if ((int)(score / 100) > _lastBGUpdate) { UpdateBackground(); _lastBGUpdate = (int)(score / 100); }
         if ((int)(score / 200) > _gameManager.GetLevel()) { _gameManager.SetLevel((int)(score / 200)); }
     }

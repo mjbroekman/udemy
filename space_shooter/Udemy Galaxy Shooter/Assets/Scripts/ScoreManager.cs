@@ -4,15 +4,40 @@ using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
 {
+    private static ScoreManager m_instance;
 
-    void Start()
+    public static ScoreManager _instance
     {
+        get
+        {
+            if (m_instance == null)
+            {
+                m_instance = new GameObject("ScoreManager").AddComponent<ScoreManager>();
+            }
+            return m_instance;
+        }
+    }
+
+    void Awake()
+    {
+        if (m_instance == null)
+        {
+            m_instance = this;
+        }
+        else if (m_instance != this)
+            Destroy(gameObject);
+
         DontDestroyOnLoad(gameObject);
     }
 
-    void Update()
-    {
-    }
+    //void Start()
+    //{
+    //    DontDestroyOnLoad(gameObject);
+    //}
+
+    //void Update()
+    //{
+    //}
 
     public List<HighScore> GetHighScores()
     {
