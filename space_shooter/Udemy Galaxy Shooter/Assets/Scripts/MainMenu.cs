@@ -11,6 +11,7 @@ public class MainMenu : MonoBehaviour
     private IEnumerator _creditScroll;
     private string[] _creditText;
     private Text[] _textObjs;
+    private ScoreManager _scoreManager;
 
     void Start()
     {
@@ -37,6 +38,8 @@ public class MainMenu : MonoBehaviour
                 }
             }
         }
+        _scoreManager = GameObject.Find("ScoreManager").GetComponent<ScoreManager>();
+        if (_scoreManager == null) Debug.LogError("UIManager::Start() :: Unable to find ScoreManager / TopScores component");
     }
 
     private void InitHighScore()
@@ -45,8 +48,7 @@ public class MainMenu : MonoBehaviour
         else
         {
             Debug.Log("MainMenu::Start() :: Setting up high score display");
-            _highScore.text = "High Score\n";
-            _highScore.text += PlayerPrefs.HasKey("CurrentHighScore") ? PlayerPrefs.GetInt("CurrentHighScore") : 0;
+            _highScore.text = "High Score\n" + _scoreManager.GetHighScores(0);
         }
     }
 

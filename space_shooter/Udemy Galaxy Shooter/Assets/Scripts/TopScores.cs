@@ -7,14 +7,12 @@ using UnityEngine.SceneManagement;
 
 public class TopScores : MonoBehaviour
 {
-    private string[] _topScores;
-    private Text _scoreList;
     private Text[] _textObjs;
+    private Text _scoreList, _scoreNames;
     private IEnumerator scoreDisplay;
 
-    void Start()
+    public void Start()
     {
-        _topScores = PlayerPrefs.HasKey("TopScores") ? PlayerPrefs.GetString("TopScores").Split(","[0]) : new string[0];
         _textObjs = FindObjectsOfType<Text>();
         for (int i = 0; i < _textObjs.Length; i++)
         {
@@ -23,6 +21,7 @@ public class TopScores : MonoBehaviour
                 switch (_textObjs[i].name)
                 {
                     case "Score_List_Scores": { _scoreList = _textObjs[i]; break; }
+                    case "Score_List_Names": { _scoreNames = _textObjs[i]; break; }
                 }
             }
         }
@@ -30,22 +29,23 @@ public class TopScores : MonoBehaviour
         StartCoroutine(scoreDisplay);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape)) { ReturnToMain(); }
-    }
-
     public IEnumerator DisplayScores()
     {
-        int i = 0;
         _scoreList.text = "";
-        while (i < 10)
+        _scoreNames.text = "";
+        for (int i = 1; i <= 10; i++)
         {
             yield return new WaitForSeconds(0.5f);
-            if (_topScores.Length > 0 && i < _topScores.Length) { _scoreList.text += _topScores[i] + "\n"; }
-            if (i >= _topScores.Length) { _scoreList.text += "0\n"; }
-            i++;
+            if (PlayerPrefs.HasKey("HighScore" + i + "_Score") && PlayerPrefs.HasKey("HighScore" + i + "_Name"))
+            {
+                _scoreNames.text += PlayerPrefs.GetString("HighScore" + i + "_Name") + "\n";
+                _scoreList.text += PlayerPrefs.GetInt("HighScore" + i + "_Score") + "\n";
+            }
+            else
+            {
+                _scoreNames.text += ". . . . .\n";
+                _scoreList.text += "0\n";
+            }
         }
     }
 
@@ -53,10 +53,14 @@ public class TopScores : MonoBehaviour
     {
         StopCoroutine(scoreDisplay);
         scoreDisplay = null;
-        if (PlayerPrefs.HasKey("TopScores")) { PlayerPrefs.DeleteKey("TopScores"); }
-        if (PlayerPrefs.HasKey("CurrentHighScore")) { PlayerPrefs.DeleteKey("CurrentHighScore"); }
+        for (int i = 1; i <= 10; i++)
+        {
+            if (PlayerPrefs.HasKey("HighScore" + i + "_Score")) { PlayerPrefs.DeleteKey("HighScore" + i + "_Score"); }
+            if (PlayerPrefs.HasKey("HighScore" + i + "_Name")) { PlayerPrefs.DeleteKey("HighScore" + i + "_Name"); }
+        }
         scoreDisplay = DisplayScores();
         StartCoroutine(scoreDisplay);
+        PlayerPrefs.Save();
     }
 
     public void ReturnToMain()

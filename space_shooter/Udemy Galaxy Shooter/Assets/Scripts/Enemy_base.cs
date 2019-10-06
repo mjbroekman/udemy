@@ -86,10 +86,8 @@ public class Enemy_base : MonoBehaviour
 
     void Update()
     {
-        if (gameObject.GetComponent<SpriteRenderer>().enabled)
-        {
-            MoveEnemy();
-        }
+        if (_spawnManager.IsPlayerDead()) { Debug.Log("Enemy_base::Update() :: Player is dead. Time for me to die."); Destroy(gameObject); }
+        if (gameObject.GetComponent<SpriteRenderer>().enabled) { MoveEnemy(); }
     }
 
     private void MoveEnemy()
@@ -195,7 +193,7 @@ public class Enemy_base : MonoBehaviour
 
     private void SetSpeed()
     {
-        _curSpd = 2.0f + ((_gameManager.GetLevel() - 1f) / 2f);
+        _curSpd = 2.0f + ((_gameManager.GetLevel() - 1f) / 3f);
     }
 
     private void OnTriggerEnter2D(Collider2D other)

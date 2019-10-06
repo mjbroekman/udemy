@@ -24,11 +24,15 @@ public class SpawnManager : MonoBehaviour
     private bool _stopEnemySpawning;         // Should we stop spawning new enemy objects
     private bool _stopPowerUpSpawning;       // Should we stop spawning new enemy objects
     private bool _stopObjectSpawning;        // Should we stop spawning misc objects
+    private bool _playerDead;
     private float _bossRate;                 // How often should 'boss' enemies appear
     private float _maxEDelay;                // Maximum delay between enemy spawns
     private float _minEDelay;                // Minimum delay between enemy spawns
     private float _maxPDelay;                // Maximum delay between powerup spawns
     private float _minPDelay;                // Minimum delay between powerup spawns
+
+    // Tags to cycle through on Player Death 
+    private readonly string[] _tagsToKill = { "Enemy", "PowerUp", "Laser" };
 
     // Screen boundaries and positioning
     private float _minV;
@@ -79,6 +83,7 @@ public class SpawnManager : MonoBehaviour
         EnableObjectSpawn();
 
         _isStarted = true;
+        _playerDead = true;
     }
 
     public bool IsStarted()
@@ -197,9 +202,10 @@ public class SpawnManager : MonoBehaviour
         _minV = _bounds[2];
         _maxV = _bounds[3];
 
-        yield return new WaitForSeconds(2f);
         while (!_stopEnemySpawning)
         {
+            if (_playerDead) { yield return new WaitForSeconds(2f); _playerDead = false; }
+
             float _delay = Random.Range(_minEDelay, _maxEDelay);
 
             yield return new WaitForSeconds(_delay);
@@ -207,13 +213,11 @@ public class SpawnManager : MonoBehaviour
             if (_minEDelay > 0.1f) { _minEDelay -= Time.deltaTime / 1200f; }
             if (_maxEDelay > 1f) { _maxEDelay -= Time.deltaTime / 1800f; }
 
-            //Debug.Log("SpawnManager::SpawnEnemyRoutine() :: Last delay was " + _delay + "s.  New delays: _maxEDelay = " + _maxEDelay + " _minEDelay = " + _minEDelay);
-
             float _spawnV = _maxV;
 
             float _randSpawn = Random.Range(0f, 100f);
 
-            if (_randSpawn <= 90f)
+            if (_randSpawn <= 90f && !_playerDead)
             {
                 float _randType = Random.Range(0f, 100f);
                 if (_randType > 90f && (Time.time % _bossRate) > 15f)
@@ -250,7 +254,7 @@ public class SpawnManager : MonoBehaviour
             yield return new WaitForSeconds(30f);
             _spawnObj = null;
 
-            if (_objectsInGame.Length == 0 && ((Time.time - _gameTime) / 30f) > _gameManager.GetLevel())
+            if (_objectsInGame.Length == 0 && ((Time.time - _gameTime) / 30f) > _gameManager.GetLevel() && !_playerDead)
             {
                 if (Random.Range(0f, 1f) > 0.1f)
                 {
@@ -305,21 +309,23 @@ public class SpawnManager : MonoBehaviour
 
             yield return new WaitForSeconds(_delay);
 
-            if (_minPDelay < _maxPDelay) { _minPDelay += Time.deltaTime / 1200f; }
-            if (_maxPDelay < 300f) { _maxPDelay += Time.deltaTime / 900f; }
-
-            //Debug.Log("SpawnManager::SpawnPowerUpRoutine() :: Last delay was " + _delay + "s.  New delays: _maxPDelay = " + _maxPDelay + " _minPDelay = " + _minPDelay);
-            float _spawnV = _maxV;
-
-            int _randType = Random.Range(0, _powerUpSpawns.Count);
-            _spawnObj = _powerUpSpawns[_randType];
-
-            if (_spawnObj != null)
+            if (!_playerDead)
             {
-                _randomX = Random.Range(-_maxH, _maxH);
-                GameObject newSpawn = Instantiate(_spawnObj, new Vector3(_randomX, _spawnV, 0.0f), Quaternion.identity);
+                if (_minPDelay < _maxPDelay) { _minPDelay += Time.deltaTime / 1200f; }
+                if (_maxPDelay < 300f) { _maxPDelay += Time.deltaTime / 900f; }
 
-                newSpawn.transform.parent = _powerUpContainer.transform;
+                float _spawnV = _maxV;
+
+                int _randType = Random.Range(0, _powerUpSpawns.Count);
+                _spawnObj = _powerUpSpawns[_randType];
+
+                if (_spawnObj != null)
+                {
+                    _randomX = Random.Range(-_maxH, _maxH);
+                    GameObject newSpawn = Instantiate(_spawnObj, new Vector3(_randomX, _spawnV, 0.0f), Quaternion.identity);
+
+                    newSpawn.transform.parent = _powerUpContainer.transform;
+                }
             }
         }
     }
@@ -329,20 +335,10 @@ public class SpawnManager : MonoBehaviour
         _gameTime = Time.time / 2;
         Debug.Log("SpawnManager::OnPlayerDeath() :: Resetting game time to " + _gameTime);
 
+        _playerDead = true;
         DisableEnemySpawn();
         DisablePowerUpSpawn();
         DisableObjectSpawn();
-
-        GameObject[] objectsToDestroy = GameObject.FindGameObjectsWithTag("Enemy");
-        for (int i = 0; i < objectsToDestroy.Length; i++)
-        {
-            Destroy(objectsToDestroy[i]);
-        }
-        objectsToDestroy = GameObject.FindGameObjectsWithTag("PowerUp");
-        for (int i = 0; i < objectsToDestroy.Length; i++)
-        {
-            Destroy(objectsToDestroy[i]);
-        }
 
         if (lives > 0)
         {
@@ -350,5 +346,10 @@ public class SpawnManager : MonoBehaviour
             EnablePowerUpSpawn();
             EnableObjectSpawn();
         }
+    }
+
+    public bool IsPlayerDead()
+    {
+        return _playerDead;
     }
 }

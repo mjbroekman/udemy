@@ -26,11 +26,10 @@ public class AudioManager : MonoBehaviour
         _backgroundMusic = new GameObject("BackgroundMusic");
         _backgroundMusic.transform.parent = transform;
         _backgroundMusic.AddComponent<AudioSource>();
+
         _musicSource = _backgroundMusic.GetComponent<AudioSource>();
-        if (_musicSource != null)
-        {
-            _musicSource.loop = true;
-        }
+        if (_musicSource != null) { _musicSource.loop = true; }
+
         _isStarted = true;
     }
 
@@ -89,9 +88,6 @@ public class AudioManager : MonoBehaviour
 
     void Update()
     {
-        if (!_musicPlaying)
-        {
-            SetMusic(0);
-        }
+        if (!_musicPlaying) { SetMusic(0); }
     }
 }

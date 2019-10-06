@@ -8,7 +8,6 @@ public class UIManager : MonoBehaviour
     private Text _scoreText;
     private int _score;
     private Text _highScoreText;
-    private int _highScore;
     private SpriteRenderer _background;
 
     private readonly string _spritePath = "Sprites/UI/";
@@ -30,6 +29,7 @@ public class UIManager : MonoBehaviour
 
     private SpawnManager _spawnManager;
     private GameManager _gameManager;
+    private ScoreManager _scoreManager;
 
     void Start()
     {
@@ -37,6 +37,9 @@ public class UIManager : MonoBehaviour
         LoadAssets("UI/Text");
         _imageObjects = new Dictionary<string, Image>();
         LoadAssets("UI/Images");
+
+        _scoreManager = GameObject.Find("ScoreManager").GetComponent<ScoreManager>();
+        if (_scoreManager == null) Debug.LogError("UIManager::Start() :: Unable to find ScoreManager component");
 
         if (_textObjects.ContainsKey("Score_Text") && _textObjects["Score_Text"] != null)
         {
@@ -48,8 +51,7 @@ public class UIManager : MonoBehaviour
         if (_textObjects.ContainsKey("High_Score") && _textObjects["High_Score"] != null)
         {
             _highScoreText = Instantiate(_textObjects["High_Score"], transform);
-            _highScore = PlayerPrefs.HasKey("CurrentHighScore") ? PlayerPrefs.GetInt("CurrentHighScore") : 0;
-            _highScoreText.text = "High Score:\n" + _highScore;
+            _highScoreText.text = "High Score:\n" + _scoreManager.GetHighScores(0);
         }
 
         if (_imageObjects.ContainsKey("Lives_Display") && _imageObjects["Lives_Display"] != null)
@@ -140,10 +142,13 @@ public class UIManager : MonoBehaviour
         if (_livesImage != null && lives >= 0 && lives <= 3)
         {
             _livesImage.sprite = _lifeSprites[lives];
-            if (lives == 0) { _gameManager.SetGameState(true); DisplayGameOver(); }
+            if (lives == 0) { _gameManager.SetGameState(true); UpdateHighScore(); DisplayGameOver(); }
         }
         else
         {
+            _gameManager.SetGameState(true);
+            UpdateHighScore();
+            DisplayGameOver();
             Debug.Log("UIManager::UpdateLives() :: Can't find the Lives_Display object or the Image component of it. Are we trying to update it before it's initialized? Do we have an invalid number of lives?  Lives == " + lives + " Image == " + _livesImage);
         }
     }
@@ -154,17 +159,14 @@ public class UIManager : MonoBehaviour
         {
             case 0:
                 FlipBackground(true, false);
-                Debug.Log("UIManager::UpdateBackground() :: Flipped over X axis.");
                 break;
             case 1:
                 FlipBackground(false, true);
-                Debug.Log("UIManager::UpdateBackground() :: Flipped over Y axis.");
                 break;
             case 2:
                 if (_background.color.b < 1f)
                 {
                     _background.color = new Color(_background.color.r, _background.color.g, _background.color.b + 0.1f, _background.color.a);
-                    Debug.Log("UIManager::UpdateBackground() :: Blue shifted. Current Blue == " + _background.color.b);
                 }
                 break;
         }
@@ -199,7 +201,6 @@ public class UIManager : MonoBehaviour
             GameOver.text = "GAME OVER";
             _is_GameOver = true;
             StartCoroutine(_waitForInput);
-            UpdateHighScore();
         }
     }
 
@@ -219,47 +220,7 @@ public class UIManager : MonoBehaviour
 
     public void UpdateHighScore()
     {
-        if (_score > _highScore)
-        {
-            _highScore = _score;
-            _highScoreText.text = "High Score:\n" + _highScore;
-            PlayerPrefs.SetInt("CurrentHighScore", _highScore);
-        }
-        // Update the Top10 list of scores
-        // This is janky as heck but I can't figure out a better way to do it.
-        //  1. Load the TopScores pref if it exists
-        //  2. Split the pref string by the comma character (need the [0] because a single character string is still a string and not implicitly a char)
-        //  3. Push the array values into a List.
-        //  4. Sort the List (which defaults to 'ascending'.
-        //  5. Reverse the List (so 0 has the highest value.
-        //  6. Push the first 10 entries into a comma-separated string.
-        string _scorePref = "";
-        string[] _topScores = PlayerPrefs.HasKey("TopScores") ? PlayerPrefs.GetString("TopScores").Split(","[0]) : new string[0];
-        List<int> _scoreList = new List<int>();
-        for (int i = 0; i < _topScores.Length; i++)
-        {
-            if (_topScores[i] != null)
-            {
-                int tmp;
-                int.TryParse(_topScores[i], out tmp);
-                if (tmp > 0) { _scoreList.Add(tmp); }
-            }
-        }
-        _scoreList.Add(_score);
-        _scoreList.Sort();
-        _scoreList.Reverse();
-        int s = 0;
-        foreach (int score in _scoreList)
-        {
-            if (_scorePref == "") { _scorePref = "" + score; }
-            else { _scorePref += "," + score; }
-            s++;
-            if (s == 10) { break; }
-        }
-        PlayerPrefs.SetString("TopScores", _scorePref);
-
-        // Save the updated prefs (if any)
-        PlayerPrefs.Save();
+        _highScoreText.text = "High Score:\n" + _scoreManager.UpdateHighScores(_score);
     }
 
     public void UpdateScore(int score)
@@ -269,4 +230,5 @@ public class UIManager : MonoBehaviour
         if ((int)(score / 100) > _lastBGUpdate) { UpdateBackground(); _lastBGUpdate = (int)(score / 100); }
         if ((int)(score / 200) > _gameManager.GetLevel()) { _gameManager.SetLevel((int)(score / 200)); }
     }
+
 }

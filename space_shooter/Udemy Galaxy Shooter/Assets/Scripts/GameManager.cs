@@ -13,7 +13,6 @@ public class GameManager : MonoBehaviour
     private GameObject _pauseMenu;
     private Animator _pmAnimator;
 
-    // Start is called before the first frame update
     void Start()
     {
         _isStarted = false;
@@ -119,7 +118,6 @@ public class GameManager : MonoBehaviour
     {
         switch (who.tag)
         {
-            // return float[] { minX, maxX, minY, maxY }
             case "Player": return new float[] { -10f, 10f, -3.75f, 4f };
             case "Asteroid": return new float[] { -9.5f, 9.5f, -5f, 5.5f };
             default: return new float[] { -9.5f, 9.5f, -5f, 6f };
@@ -130,7 +128,6 @@ public class GameManager : MonoBehaviour
     {
         switch (who)
         {
-            // return float[] { minX, maxX, minY, maxY }
             case "Player": return new float[] { -10f, 10f, -4f, 4f };
             case "Asteroid": return new float[] { -9.5f, 9.5f, -5f, 5.5f };
             default: return new float[] { -10f, 10f, -5f, 6f };

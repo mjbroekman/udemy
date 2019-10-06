@@ -4,11 +4,8 @@ using UnityEngine;
 
 public class PowerUp : MonoBehaviour
 {
-    // This is the type of powerUp (TripleShot, Shield, Boost, etc)
     private string _variant;
-    // This is how long the powerUp lasts (duration in seconds or damage absorbed)
     private float _strength;
-    // This is how fast the powerUp 'falls'
     private float _speed = 2f;
 
     // Screen boundaries and positioning
@@ -21,7 +18,6 @@ public class PowerUp : MonoBehaviour
     private AudioSource _e_sounds;
     private AudioManager _audioManager;
 
-    // Start is called before the first frame update
     void Start()
     {
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
@@ -54,7 +50,6 @@ public class PowerUp : MonoBehaviour
         transform.position = new Vector3(_randomX, _maxV, 0.0f);
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (gameObject.GetComponent<SpriteRenderer>().enabled)

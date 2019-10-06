@@ -200,11 +200,10 @@ public class Player : MonoBehaviour
                 Laser laserComp = laser.GetComponent<Laser>();
                 if (laserComp == null)
                 {
-                    Debug.Log("Player::FireLaser() :: Laser Component is null. Are we a TripleShot?");
                     Laser[] laserComps = laser.GetComponentsInChildren<Laser>();
                     if (laserComps.Length == 0)
                     {
-                        Debug.Log("Player::FireLaser() :: Laser children have no Laser components!");
+                        //Debug.Log("Player::FireLaser() :: Laser children have no Laser components!");
                     }
                     else
                     {
@@ -254,9 +253,9 @@ public class Player : MonoBehaviour
                 RemoveAllEffects();
                 _lives--;
                 _uiManager.UpdateLives(_lives);
-                _spawnManager.OnPlayerDeath(_lives);
                 _ = Instantiate(_spawnManager.GetEffect("Explosion"), transform.position, Quaternion.identity);
                 SetStartingPosition();
+                _spawnManager.OnPlayerDeath(_lives);
 
                 if (_lives > 0)
                 {
