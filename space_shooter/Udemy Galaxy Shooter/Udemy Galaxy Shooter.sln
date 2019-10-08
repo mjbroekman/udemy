@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio for Mac
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{91EEB333-A5B3-6BFF-88C8-B5FB6F445E6A}"
 EndProject
 Global
@@ -16,21 +16,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		Policies = $0
-		$0.TextStylePolicy = $1
-		$1.FileWidth = 80
-		$1.TabsToSpaces = True
-		$1.EolMarker = Unix
-		$1.scope = text/x-csharp
-		$0.CSharpFormattingPolicy = $2
-		$2.scope = text/x-csharp
-		$0.TextStylePolicy = $3
-		$3.FileWidth = 80
-		$3.TabsToSpaces = True
-		$3.EolMarker = Unix
-		$3.scope = text/plain
-		$0.StandardHeader = $4
 	EndGlobalSection
 EndGlobal

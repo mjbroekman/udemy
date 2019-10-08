@@ -32,7 +32,7 @@ public class SpawnManager : MonoBehaviour
     private float _minPDelay;                // Minimum delay between powerup spawns
 
     // Tags to cycle through on Player Death 
-    private readonly string[] _tagsToKill = { "Enemy", "PowerUp", "Laser" };
+    protected internal readonly string[] _tagsToKill = { "Enemy", "PowerUp", "Laser" };
 
     // Screen boundaries and positioning
     private float _minV;
@@ -336,6 +336,7 @@ public class SpawnManager : MonoBehaviour
         Debug.Log("SpawnManager::OnPlayerDeath() :: Resetting game time to " + _gameTime);
 
         _playerDead = true;
+
         DisableEnemySpawn();
         DisablePowerUpSpawn();
         DisableObjectSpawn();

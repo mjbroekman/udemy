@@ -27,11 +27,14 @@ public class Enemy_base : MonoBehaviour
     private AudioManager _audioManager;
     private IEnumerator _firingCycle;
     private GameObject _pf_mainWeapon;
-    private GameObject _e_ThrusterA;
-    private GameObject _e_ThrusterB;
+    private GameObject[] _e_Thruster;
 
     void Start()
     {
+        if (GameObject.Find("Player") != null) _player = GameObject.Find("Player").GetComponent<Player>();
+
+        _pf_mainWeapon = Resources.Load<GameObject>("Prefabs/Weapons/Laser");
+
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
         if (_spawnManager == null) Debug.LogError("Enemy_base::Start() :: Houston, we have a problem. There is no Spawn_Manager in the scene.");
 
@@ -42,8 +45,6 @@ public class Enemy_base : MonoBehaviour
         _maxH = _bounds[1];
         _maxV = _bounds[3];
 
-        _pf_mainWeapon = Resources.Load<GameObject>("Prefabs/Weapons/Laser");
-
         _randomX = Random.Range(-_maxH, _maxH);
         _lastMove = Vector3.down;
         transform.position = new Vector3(_randomX, _maxV, 0.0f);
@@ -52,8 +53,6 @@ public class Enemy_base : MonoBehaviour
 
         if (_curLife > _maxLife) { _curLife = _maxLife; }
         _baseLife = _curLife;
-
-        if (GameObject.Find("Player") != null) _player = GameObject.Find("Player").GetComponent<Player>();
 
         _e_animator = gameObject.GetComponent<Animator>();
         if (_e_animator != null) _e_animator.ResetTrigger("OnEnemyDeath");
@@ -74,20 +73,35 @@ public class Enemy_base : MonoBehaviour
         SetColor();
         _firingCycle = FiringCycle();
         StartCoroutine(_firingCycle);
-        _e_ThrusterA = Instantiate(_spawnManager.GetEffect("Thruster"), transform.position, Quaternion.identity, transform);
-        _e_ThrusterB = Instantiate(_spawnManager.GetEffect("Thruster"), transform.position, Quaternion.identity, transform);
-        _e_ThrusterA.transform.localPosition += new Vector3(-0.375f, 2.5f, 0f);
-        _e_ThrusterB.transform.localPosition += new Vector3(0.375f, 2.5f, 0f);
-        _e_ThrusterA.transform.localScale = new Vector3(0.1f, 0.5f, 0f);
-        _e_ThrusterB.transform.localScale = new Vector3(0.1f, 0.5f, 0f);
-        _e_ThrusterA.transform.Rotate(new Vector3(-180f, 0f, 0f));
-        _e_ThrusterB.transform.Rotate(new Vector3(-180f, 0f, 0f));
+        _e_Thruster = new GameObject[2];
+        SetEffects("Thruster", _e_Thruster.Length);
     }
 
     void Update()
     {
         if (_spawnManager.IsPlayerDead()) { Debug.Log("Enemy_base::Update() :: Player is dead. Time for me to die."); Destroy(gameObject); }
         if (gameObject.GetComponent<SpriteRenderer>().enabled) { MoveEnemy(); }
+    }
+
+    private void SetEffects(string effect, int count)
+    {
+        switch (effect)
+        {
+            case "Thruster":
+                for (int i = 0; i < count; i++)
+                {
+
+                    _e_Thruster[i] = Instantiate(_spawnManager.GetEffect("Thruster"), transform.position, Quaternion.identity, transform);
+                    _e_Thruster[i].transform.localPosition += new Vector3(-0.375f + (i * 0.375f), 2.5f, 0f);
+                    //_e_ThrusterB.transform.localPosition += new Vector3(0.375f, 2.5f, 0f);
+                    _e_Thruster[i].transform.localScale = new Vector3(0.1f, 0.5f, 0f);
+                    //_e_Thruster[i].transform.localScale = new Vector3(0.1f, 0.5f, 0f);
+                    _e_Thruster[i].transform.Rotate(new Vector3(-180f, 0f, 0f));
+                    //_e_ThrusterB.transform.Rotate(new Vector3(-180f, 0f, 0f));
+                }
+                break;
+        }
+
     }
 
     private void MoveEnemy()
@@ -238,8 +252,12 @@ public class Enemy_base : MonoBehaviour
             else if (_byPlayer) { _player.IncreaseScore((int)_baseLife + (int)_curSpd); }
             _e_animator.SetTrigger("OnEnemyDeath");
             gameObject.GetComponent<BoxCollider2D>().enabled = false;
-            Destroy(_e_ThrusterA);
-            Destroy(_e_ThrusterB);
+            foreach (GameObject _effect in _e_Thruster)
+            {
+                Destroy(_effect);
+            }
+            //Destroy(_e_ThrusterA);
+            //Destroy(_e_ThrusterB);
             if (_firingCycle != null)
             {
                 StopCoroutine(_firingCycle);

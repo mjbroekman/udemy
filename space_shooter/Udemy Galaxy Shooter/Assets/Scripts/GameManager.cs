@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
         _difficultyLevel = 1;
         _is_GamePaused = false;
 
+
         _audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         if (_audioManager == null) Debug.LogError("GameManager::Start() :: We have a problem. The audioManager is null");
         else { _audioManager.SetMusic(_difficultyLevel); }
@@ -80,6 +81,7 @@ public class GameManager : MonoBehaviour
 
     public void GoMainMenu()
     {
+        Time.timeScale = 1;
         SceneManager.LoadScene(0);
     }
 
@@ -97,7 +99,7 @@ public class GameManager : MonoBehaviour
         _is_GameOver = gState;
     }
 
-    public float GetLevel()
+    public int GetLevel()
     {
         return _difficultyLevel;
     }
@@ -105,12 +107,14 @@ public class GameManager : MonoBehaviour
     public void IncreaseLevel()
     {
         _difficultyLevel++;
+        Debug.Log("GameManager::IncreaseLevel() :: Game Level is now " + _difficultyLevel);
         _audioManager.SetMusic(_difficultyLevel);
     }
 
     public void SetLevel(int level)
     {
         _difficultyLevel = level;
+        Debug.Log("GameManager::SetLevel() :: Game Level is now " + _difficultyLevel);
         _audioManager.SetMusic(_difficultyLevel);
     }
 

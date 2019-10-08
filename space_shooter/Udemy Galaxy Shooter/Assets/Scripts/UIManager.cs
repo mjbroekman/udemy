@@ -8,7 +8,12 @@ public class UIManager : MonoBehaviour
     private Text _scoreText;
     private int _score;
     private Text _highScoreText;
+    private Text _levelText;
+
     private SpriteRenderer _background;
+
+    // Text Objects to connect to variables
+    protected internal readonly string[] _textToObj = { "Score_Text", "High_Score", "Level_Text" };
 
     private readonly string _spritePath = "Sprites/UI/";
     private Sprite[] _lifeSprites;
@@ -38,21 +43,67 @@ public class UIManager : MonoBehaviour
         _imageObjects = new Dictionary<string, Image>();
         LoadAssets("UI/Images");
 
+        ConfigObjects();
+        ResetBackground();
+
+        _lastBGUpdate = 0;
+        _score = 0;
+
+        _gameManager.SetGameState(false);
+        _is_GameOver = _gameManager.GetGameState();
+        _uiLoaded = true;
+        _waitForInput = WaitForInput();
+    }
+
+    private void ConfigObjects()
+    {
+        _background = GameObject.Find("Background").GetComponent<SpriteRenderer>();
+        if (_background == null) Debug.LogError("UIManager::ConfigObjects() :: Unable to find background sprite renderer");
+
         _scoreManager = GameObject.Find("ScoreManager").GetComponent<ScoreManager>();
-        if (_scoreManager == null) Debug.LogError("UIManager::Start() :: Unable to find ScoreManager component");
+        if (_scoreManager == null) Debug.LogError("UIManager::ConfigObjects() :: Unable to find the ScoreManager");
 
-        if (_textObjects.ContainsKey("Score_Text") && _textObjects["Score_Text"] != null)
-        {
-            _scoreText = Instantiate(_textObjects["Score_Text"], transform);
-            _scoreText.text = "Score:\n";
-        }
-        _textObjects["Score_Text"].text = "Score:\n0";
+        _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
+        if (_spawnManager == null) Debug.LogError("UIManager::ConfigObjects() :: Unable to find the SpawnManager.");
 
-        if (_textObjects.ContainsKey("High_Score") && _textObjects["High_Score"] != null)
+        _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
+        if (_gameManager == null) Debug.LogError("UIManager::ConfigObjects() :: Unable to find the Game_Manager");
+
+        foreach (string textObj in _textToObj)
         {
-            _highScoreText = Instantiate(_textObjects["High_Score"], transform);
-            _highScoreText.text = "High Score:\n" + _scoreManager.GetHighScores(0);
+            if (_textObjects.ContainsKey(textObj) && _textObjects[textObj] != null)
+            {
+                switch (textObj)
+                {
+                    case "Score_Text": _scoreText = Instantiate(_textObjects[textObj], transform); _scoreText.text = "Score:\n"; break;
+                    case "High_Score": _highScoreText = Instantiate(_textObjects[textObj], transform); _highScoreText.text = "High Score:\n" + _scoreManager.GetHighScores(0); break;
+                    case "Level_Text": _levelText = Instantiate(_textObjects[textObj], transform); UpdateLevelText(_gameManager.GetLevel()); break;
+                }
+            }
+            else
+            {
+                Debug.LogError("UIManager::ConfigObjects() :: Unable to find non-null " + textObj + " object");
+            }
         }
+        //if (_textObjects.ContainsKey("Score_Text") && _textObjects["Score_Text"] != null)
+        //{
+        //    _scoreText = Instantiate(_textObjects["Score_Text"], transform);
+        //    _scoreText.text = "Score:\n";
+        //}
+        //else
+        //{
+        //    Debug.LogError("UIManager::ConfigObjects() :: Unable to find Score_Text object");
+        //}
+
+        //if (_textObjects.ContainsKey("High_Score") && _textObjects["High_Score"] != null)
+        //{
+        //    _highScoreText = Instantiate(_textObjects["High_Score"], transform);
+        //    _highScoreText.text = "High Score:\n" + _scoreManager.GetHighScores(0);
+        //}
+        //else
+        //{
+        //    Debug.LogError("UIManager::ConfigObjects() :: Unable to find High_Score object");
+        //}
 
         if (_imageObjects.ContainsKey("Lives_Display") && _imageObjects["Lives_Display"] != null)
         {
@@ -62,24 +113,12 @@ public class UIManager : MonoBehaviour
                 : GameObject.Find("Lives_Display").GetComponent<Image>();
             InitLives();
         }
-
-        _background = GameObject.Find("Background").GetComponent<SpriteRenderer>();
-        if (_background == null) Debug.LogError("UIManager::Start() :: Unable to find background component");
-        ResetBackground();
-        _lastBGUpdate = 0;
-        _score = 0;
-
-        _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
-        if (_spawnManager == null) Debug.LogError("UIManager::Start() :: This is going to be a problem. We don't have a SpawnManager active.");
-
-        _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
-        if (_gameManager == null) Debug.LogError("UIManager::Start() :: We have a problem. The gameManager is null");
-
-        _gameManager.SetGameState(false);
-        _is_GameOver = _gameManager.GetGameState();
-        _uiLoaded = true;
-        _waitForInput = WaitForInput();
+        else
+        {
+            Debug.LogError("UIManager::ConfigObjects() :: Unable to find Lives_Display image");
+        }
     }
+
 
     public bool IsStarted()
     {
@@ -228,7 +267,13 @@ public class UIManager : MonoBehaviour
         _score = score;
         _scoreText.text = "Score:\n" + _score;
         if ((int)(score / 100) > _lastBGUpdate) { UpdateBackground(); _lastBGUpdate = (int)(score / 100); }
-        if ((int)(score / 200) > _gameManager.GetLevel()) { _gameManager.SetLevel((int)(score / 200)); }
+        if ((int)(score / 200) > _gameManager.GetLevel()) { _gameManager.SetLevel((int)(_score / 200)); }
+        UpdateLevelText(_gameManager.GetLevel());
     }
 
+    public void UpdateLevelText(int level)
+    {
+
+        _levelText.text = "Level: " + level;
+    }
 }

@@ -10,22 +10,15 @@ public class ScoreManager : MonoBehaviour
     {
         get
         {
-            if (m_instance == null)
-            {
-                m_instance = new GameObject("ScoreManager").AddComponent<ScoreManager>();
-            }
+            if (m_instance == null) { m_instance = new GameObject("ScoreManager").AddComponent<ScoreManager>(); }
             return m_instance;
         }
     }
 
     void Awake()
     {
-        if (m_instance == null)
-        {
-            m_instance = this;
-        }
-        else if (m_instance != this)
-            Destroy(gameObject);
+        if (m_instance == null) { m_instance = this; }
+        else if (m_instance != this) { Destroy(gameObject); }
 
         DontDestroyOnLoad(gameObject);
     }
@@ -65,14 +58,8 @@ public class ScoreManager : MonoBehaviour
                 _highScores.Add(tmp);
             }
         }
-        if (index < _highScores.Count)
-        {
-            return _highScores[index].score;
-        }
-        else
-        {
-            return 0;
-        }
+        if (index < _highScores.Count) { return _highScores[index].score; }
+        else { return 0; }
     }
 
     public int UpdateHighScores(int score)
