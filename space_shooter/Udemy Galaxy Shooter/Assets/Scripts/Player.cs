@@ -47,6 +47,7 @@ public class Player : MonoBehaviour
     private SpriteRenderer _p_spriteRenderer;
     private AudioSource _p_sounds;
     private AudioManager _audioManager;
+    private Animator _p_animator;
 
     private int _score;
 
@@ -104,6 +105,14 @@ public class Player : MonoBehaviour
             _uiManager.UpdateLives(_lives);
         }
 
+        _p_animator = gameObject.GetComponent<Animator>();
+        if (_p_animator == null) { Debug.LogError("Player::Start() :: Unable to get animator component"); }
+        else
+        {
+            _p_animator.SetBool("Turn_Left", false);
+            _p_animator.SetBool("Turn_Right", false);
+        }
+
         _audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         if (_audioManager == null) Debug.LogError("Player::Start() :: We have a problem. The audioManager is null");
         else
@@ -128,6 +137,7 @@ public class Player : MonoBehaviour
         {
             if (!_flyUp && transform.position.y < -1f) { transform.Translate(Vector3.up * _curSpd * Time.deltaTime); }
             else if (!_flyUp && transform.position.y >= -1f) { _flyUp = true; }
+
             if (_flyUp && transform.position.y > -3.5f) { transform.Translate(Vector3.down * _curSpd * Time.deltaTime); }
             else if (_flyUp && transform.position.y <= -3.5f) { _flyDown = true; }
 
@@ -152,31 +162,26 @@ public class Player : MonoBehaviour
     void CheckPowerUp()
     {
         float curTime = Time.time;
-        if (_tShotEnabled)
-        {
-            //Debug.Log("Player::CheckPowerUp() :: TripleShot: current time: " + curTime + " tshottime: " + _tShotTime + " duration: " + _tShotDuration);
-        }
-        if (_boostEnabled)
-        {
-            //Debug.Log("Player::CheckPowerUp() :: Boost: current time: " + curTime + " boosttime: " + _boostTime + " duration: " + _boostDuration);
-        }
-        if (_tShotEnabled && (curTime - _tShotTime) > _tShotDuration)
-        {
-            //Debug.Log("Player::CheckPowerUp() :: TripleShot powerup expired");
-            DisableTripleShot();
-        }
-        if (_boostEnabled && (curTime - _boostTime) > _boostDuration)
-        {
-            //Debug.Log("Player::CheckPowerUp() :: Boost powerup expired");
-            DisableSpeedBoost();
-        }
+
+        if (_tShotEnabled && (curTime - _tShotTime) > _tShotDuration) { DisableTripleShot(); }
+        if (_boostEnabled && (curTime - _boostTime) > _boostDuration) { DisableSpeedBoost(); }
     }
 
     void CalculateMovement()
     {
         // Get player input wasd/arrows
-        float hInput = Input.GetAxis("Horizontal");
-        float vInput = Input.GetAxis("Vertical");
+        float hInput = 0f;
+        float vInput = 0f;
+
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) { hInput = -1f; }
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) { hInput = 1f; }
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) { vInput = 1f; }
+        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) { vInput = -1f; }
+
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) { _p_animator.SetBool("Turn_Left", true); _p_animator.SetBool("Turn_Right", false); }
+        if (Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.LeftArrow)) { _p_animator.SetBool("Turn_Left", false); _p_animator.SetBool("Turn_Right", false); }
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) { _p_animator.SetBool("Turn_Left", false); _p_animator.SetBool("Turn_Right", true); }
+        if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.RightArrow)) { _p_animator.SetBool("Turn_Left", false); _p_animator.SetBool("Turn_Right", false); }
 
         // Move the Player
         transform.Translate(new Vector3(hInput, vInput, 0) * _curSpd * Time.deltaTime);
@@ -194,30 +199,8 @@ public class Player : MonoBehaviour
         if (_pf_mainWeapon != null)
         {
             _curCoolDown = Time.time + (_laserCoolDown * _coolDownMult);
-            GameObject laser = Instantiate(_pf_mainWeapon, transform.position + new Vector3(0, 0.75f, 0), Quaternion.identity);
-            if (laser != null)
-            {
-                Laser laserComp = laser.GetComponent<Laser>();
-                if (laserComp == null)
-                {
-                    Laser[] laserComps = laser.GetComponentsInChildren<Laser>();
-                    if (laserComps.Length == 0)
-                    {
-                        //Debug.Log("Player::FireLaser() :: Laser children have no Laser components!");
-                    }
-                    else
-                    {
-                        for (int i = 0; i < laserComps.Length; i++)
-                        {
-                            laserComps[i].ConfigureLaser("Player");
-                        }
-                    }
-                }
-                else
-                {
-                    laserComp.ConfigureLaser("Player");
-                }
-            }
+            GameObject laser = Instantiate(_pf_mainWeapon, transform.position + new Vector3(0, 0.75f, 0), Quaternion.identity, transform);
+            if (laser == null) { Debug.LogError("Player::FireLaser() :: I fired a NULL!"); }
         }
         else
         {
@@ -264,7 +247,6 @@ public class Player : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Player::TakeDamage() :: I'm going down! I'm hit! It's all over for me!");
                     Destroy(this.gameObject, 1f);
                 }
             }
@@ -418,7 +400,8 @@ public class Player : MonoBehaviour
     {
         _tShotEnabled = true;
         _tShotTime = Time.time;
-        _tShotDuration += strength;
+        _tShotDuration += strength + (_gameManager.GetLevel() / 2);
+        _coolDownMult = 0.75f;
         _pf_mainWeapon = Resources.Load<GameObject>("Prefabs/Weapons/TripleShot");
     }
 
@@ -426,6 +409,7 @@ public class Player : MonoBehaviour
     {
         _tShotEnabled = false;
         _tShotDuration = 0f;
+        _coolDownMult = 1f;
         _pf_mainWeapon = Resources.Load<GameObject>("Prefabs/Weapons/Laser");
     }
 

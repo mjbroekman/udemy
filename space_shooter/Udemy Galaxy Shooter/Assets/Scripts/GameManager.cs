@@ -12,13 +12,14 @@ public class GameManager : MonoBehaviour
     private AudioManager _audioManager;
     private GameObject _pauseMenu;
     private Animator _pmAnimator;
+    private UIManager _uiManager;
 
     void Start()
     {
         _isStarted = false;
         _difficultyLevel = 1;
         _is_GamePaused = false;
-
+        _uiManager = null;
 
         _audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         if (_audioManager == null) Debug.LogError("GameManager::Start() :: We have a problem. The audioManager is null");
@@ -106,26 +107,25 @@ public class GameManager : MonoBehaviour
 
     public void IncreaseLevel()
     {
-        _difficultyLevel++;
-        Debug.Log("GameManager::IncreaseLevel() :: Game Level is now " + _difficultyLevel);
-        _audioManager.SetMusic(_difficultyLevel);
+        SetLevel(_difficultyLevel + 1);
     }
 
     public void SetLevel(int level)
     {
+        if (_uiManager == null)
+        {
+            _uiManager = GameObject.Find("UIManager").GetComponent<UIManager>();
+            if (_uiManager == null) Debug.LogError("GameManager::SetLevel() :: Houston, we have a problem. There is no UIManager in the scene.");
+        }
         _difficultyLevel = level;
         Debug.Log("GameManager::SetLevel() :: Game Level is now " + _difficultyLevel);
         _audioManager.SetMusic(_difficultyLevel);
+        _uiManager.UpdateLevelText(_difficultyLevel);
     }
 
     public float[] GetScreenBoundaries(GameObject who)
     {
-        switch (who.tag)
-        {
-            case "Player": return new float[] { -10f, 10f, -3.75f, 4f };
-            case "Asteroid": return new float[] { -9.5f, 9.5f, -5f, 5.5f };
-            default: return new float[] { -9.5f, 9.5f, -5f, 6f };
-        }
+        return GetScreenBoundaries(who.tag);
     }
 
     public float[] GetScreenBoundaries(string who)

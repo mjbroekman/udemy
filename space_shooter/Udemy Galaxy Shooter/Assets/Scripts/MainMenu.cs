@@ -52,11 +52,6 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    public void ShowScores()
-    {
-        SceneManager.LoadScene(2);
-    }
-
     private void InitCredits()
     {
         _credits.text = "";
@@ -68,12 +63,15 @@ public class MainMenu : MonoBehaviour
             "",
             "Created 2019 by Maarten Broekman",
             "",
-            "",
-            "Made as part of Jonathan Weinberger's Udemy course:",
-            "The Ultimate Guide to Game Development with Unity 2019.",
+            "Made as part of Jonathan Weinberger's Udemy course 'The Ultimate Guide to Game Development with Unity 2019'.",
             "",
             "",
             "Game Assets provided by Jonathan Weinberger and GameDevHQ",
+            "UI elements and font from Unity Technologies' \"Unity Samples: UI\" asset pack",
+            "Nebula backgrounds from DinV Studio's \"Dynamic Space Background Lite\" asset pack",
+            "Enemy weapons fire sounds from Eric Berzins' \"Ultra SF Game Audio Weapons Pack v.1\" asset pack",
+            "",
+            "",
             "Game logic customized by Maarten Broekman",
             "Effects logic customized by Maarten Broekman",
             "",
@@ -97,18 +95,11 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    public void QuitGame()
-    {
-        Application.Quit();
-    }
+    public void QuitGame() { Application.Quit(); }
 
-    public void LoadGame()
-    {
-        SceneManager.LoadScene(1);
-    }
+    public void LoadGame() { SceneManager.LoadScene(1); }
 
-    public void HelpInfo()
-    {
-        SceneManager.LoadScene(3);
-    }
+    public void ShowScores() { SceneManager.LoadScene(2); }
+
+    public void HelpInfo() { SceneManager.LoadScene(3); }
 }

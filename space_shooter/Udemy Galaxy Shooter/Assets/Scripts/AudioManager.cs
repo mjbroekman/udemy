@@ -7,7 +7,7 @@ public class AudioManager : MonoBehaviour
     private bool _isStarted;
     private GameObject _backgroundMusic;
     private List<AudioClip> _gameMusic;
-    private AudioClip _weaponsFire;
+    private Dictionary<string, AudioClip> _weaponsFire;
     private Dictionary<string, AudioClip> _effectsMusic;
     private AudioSource _musicSource;
     private bool _musicPlaying;
@@ -18,6 +18,7 @@ public class AudioManager : MonoBehaviour
         _musicPlaying = false;
         _gameMusic = new List<AudioClip>();
         _effectsMusic = new Dictionary<string, AudioClip>();
+        _weaponsFire = new Dictionary<string, AudioClip>();
 
         LoadAssets("Effects");
         LoadAssets("Music");
@@ -33,10 +34,7 @@ public class AudioManager : MonoBehaviour
         _isStarted = true;
     }
 
-    public bool IsStarted()
-    {
-        return _isStarted;
-    }
+    public bool IsStarted() { return _isStarted; }
 
     void LoadAssets(string asset)
     {
@@ -57,7 +55,9 @@ public class AudioManager : MonoBehaviour
                     _gameMusic.Add(aud);
                     break;
                 case "Weapons":
-                    _weaponsFire = aud;
+                    string _wName = aud.name.Split("_"[0])[0];
+                    Debug.Log("AudioManager::LoadAssets() :: Adding " + _wName + " sound for " + aud);
+                    _weaponsFire.Add(_wName, aud);
                     break;
             }
         }
@@ -81,13 +81,15 @@ public class AudioManager : MonoBehaviour
         return _effectsMusic[what];
     }
 
-    public AudioClip GetWeaponSound()
+    public AudioClip GetWeaponSound(string what)
     {
-        return _weaponsFire;
+        if (what == null || what == "") { return GetWeaponSound(); }
+
+        if (_weaponsFire.ContainsKey(what)) { return _weaponsFire[what]; }
+        else return GetWeaponSound();
     }
 
-    void Update()
-    {
-        if (!_musicPlaying) { SetMusic(0); }
-    }
+    public AudioClip GetWeaponSound() { return _weaponsFire["Laser"]; }
+
+    void Update() { if (!_musicPlaying) { SetMusic(0); } }
 }

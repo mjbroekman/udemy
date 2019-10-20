@@ -18,6 +18,8 @@ public class UIManager : MonoBehaviour
     private readonly string _spritePath = "Sprites/UI/";
     private Sprite[] _lifeSprites;
     private Image _livesImage;
+    private List<Sprite> _backgrounds;
+    private Sprite _defBackground;
 
     private Dictionary<string, Text> _textObjects;
     private Dictionary<string, Image> _imageObjects;
@@ -39,9 +41,12 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         _textObjects = new Dictionary<string, Text>();
-        LoadAssets("UI/Text");
+        LoadAssets("Prefabs/UI/Text");
         _imageObjects = new Dictionary<string, Image>();
-        LoadAssets("UI/Images");
+        LoadAssets("Prefabs/UI/Images");
+        _backgrounds = new List<Sprite>();
+        _defBackground = null;
+        LoadAssets("Sprites/Backgrounds");
 
         ConfigObjects();
         ResetBackground();
@@ -85,25 +90,6 @@ public class UIManager : MonoBehaviour
                 Debug.LogError("UIManager::ConfigObjects() :: Unable to find non-null " + textObj + " object");
             }
         }
-        //if (_textObjects.ContainsKey("Score_Text") && _textObjects["Score_Text"] != null)
-        //{
-        //    _scoreText = Instantiate(_textObjects["Score_Text"], transform);
-        //    _scoreText.text = "Score:\n";
-        //}
-        //else
-        //{
-        //    Debug.LogError("UIManager::ConfigObjects() :: Unable to find Score_Text object");
-        //}
-
-        //if (_textObjects.ContainsKey("High_Score") && _textObjects["High_Score"] != null)
-        //{
-        //    _highScoreText = Instantiate(_textObjects["High_Score"], transform);
-        //    _highScoreText.text = "High Score:\n" + _scoreManager.GetHighScores(0);
-        //}
-        //else
-        //{
-        //    Debug.LogError("UIManager::ConfigObjects() :: Unable to find High_Score object");
-        //}
 
         if (_imageObjects.ContainsKey("Lives_Display") && _imageObjects["Lives_Display"] != null)
         {
@@ -131,7 +117,7 @@ public class UIManager : MonoBehaviour
 
     private void LoadAssets(string asset)
     {
-        string aPath = "Prefabs/" + asset;
+        string aPath = "" + asset;
         Debug.Log("UIManager::LoadAssets() :: Attempting to load from " + aPath);
         if (asset.Contains("Text"))
         {
@@ -146,11 +132,22 @@ public class UIManager : MonoBehaviour
         if (asset.Contains("Image"))
         {
             Image[] obj = Resources.LoadAll<Image>(aPath);
-            Debug.Log("Found " + obj.Length + " objects in " + aPath);
+            Debug.Log("UIManager::LoadAssets() :: Found " + obj.Length + " objects in " + aPath);
             foreach (Image newObj in obj)
             {
                 Debug.Log("UIManager::LoadAssets() :: Loading " + newObj.name);
                 _imageObjects.Add(newObj.name, newObj);
+            }
+        }
+        if (asset.Contains("Backgrounds"))
+        {
+            Sprite[] obj = Resources.LoadAll<Sprite>(aPath);
+            Debug.Log("UIManager::LoadAssets() :: Found " + obj.Length + " objects in " + aPath);
+            foreach (Sprite newObj in obj)
+            {
+                Debug.Log("UIManager::LoadAssets() :: Loading " + newObj.name);
+                _backgrounds.Add(newObj);
+                if (newObj.name == "SpaceBG_Overlay") { _defBackground = newObj; }
             }
         }
     }
@@ -194,19 +191,28 @@ public class UIManager : MonoBehaviour
 
     public void UpdateBackground()
     {
-        switch (Random.Range(0, 3))
+        int val = Random.Range(0, 4);
+        Debug.Log("UIManager::UpdateBackground() :: Selected case " + val);
+        switch (val)
         {
             case 0:
+                Debug.Log("UIManager::UpdateBackground() :: Flipping X axis");
                 FlipBackground(true, false);
                 break;
             case 1:
+                Debug.Log("UIManager::UpdateBackground() :: Flipping Y axis");
                 FlipBackground(false, true);
                 break;
             case 2:
-                if (_background.color.b < 1f)
+            case 3:
+                Debug.Log("UIManager::UpdateBackground() :: Swapping sprites!");
+                int bg = Random.Range(0, _backgrounds.Count);
+                while (_background.sprite.name == _backgrounds[bg].name)
                 {
-                    _background.color = new Color(_background.color.r, _background.color.g, _background.color.b + 0.1f, _background.color.a);
+                    bg = Random.Range(0, _backgrounds.Count);
                 }
+                Debug.Log("UIManager::UpdateBackground() :: Old background is " + _background.sprite.name + " || New background is " + _backgrounds[bg].name);
+                _background.sprite = _backgrounds[bg];
                 break;
         }
     }
@@ -221,6 +227,7 @@ public class UIManager : MonoBehaviour
     {
         _background.flipX = false;
         _background.flipY = false;
+        if (_defBackground != null) { _background.sprite = _defBackground; }
     }
 
     public void DisplayGameOver()

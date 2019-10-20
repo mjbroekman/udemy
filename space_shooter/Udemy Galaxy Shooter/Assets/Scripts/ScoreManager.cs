@@ -65,6 +65,7 @@ public class ScoreManager : MonoBehaviour
     public int UpdateHighScores(int score)
     {
         List<HighScore> _highScores = GetHighScores();
+        Debug.Log("ScoreManager::UpdateHighScores() :: Found " + _highScores.Count + " high scores.");
         string _playerName = PlayerPrefs.HasKey("PlayerName") ? PlayerPrefs.GetString("PlayerName") : "Player";
         HighScore tmp = new HighScore { name = _playerName, score = score };
         bool _added = false;
@@ -72,14 +73,20 @@ public class ScoreManager : MonoBehaviour
         {
             if (!_added && tmp.score > _highScores[i - 1].score)
             {
+                Debug.Log("ScoreManager::UpdateHighScores() :: Added new high score into position " + (i - 1));
                 _highScores.Insert((i - 1), tmp);
                 _added = true;
             }
         }
-        if (!_added) { _highScores.Add(tmp); }
+        if (!_added)
+        {
+            Debug.Log("ScoreManager::UpdateHighScores() :: Added new high score to the end of the list.");
+            _highScores.Add(tmp);
+        }
 
         for (int i = 0; i < 10 && i < _highScores.Count; i++)
         {
+            Debug.Log("ScoreManager::UpdateHighScores() :: Set High Score #" + (i + 1) + " to " + _highScores[i].score);
             PlayerPrefs.SetString("HighScore" + (i + 1) + "_Name", _highScores[i].name);
             PlayerPrefs.SetInt("HighScore" + (i + 1) + "_Score", _highScores[i].score);
         }

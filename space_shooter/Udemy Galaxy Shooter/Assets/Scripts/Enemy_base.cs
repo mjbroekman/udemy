@@ -31,6 +31,48 @@ public class Enemy_base : MonoBehaviour
 
     void Start()
     {
+        SetupGameObjects();
+        SetInitialPosition();
+
+        _lastMove = Vector3.down;
+
+        SetSpeed();
+        SetLife();
+        SetColor();
+
+        _firingCycle = FiringCycle();
+        StartCoroutine(_firingCycle);
+
+        _e_Thruster = new GameObject[2];
+        SetEffects("Thruster", _e_Thruster.Length);
+    }
+
+    void Update()
+    {
+        if (_spawnManager.IsPlayerDead()) { Debug.Log("Enemy_base::Update() :: Player is dead. Time for me to die."); Destroy(gameObject); }
+        if (gameObject.GetComponent<SpriteRenderer>().enabled) { MoveEnemy(); }
+    }
+
+    private void SetLife()
+    {
+        _curLife = 1f + (_gameManager.GetLevel() / 3f);
+
+        if (_curLife > _maxLife) { _curLife = _maxLife; }
+        _baseLife = _curLife;
+    }
+
+    private void SetInitialPosition()
+    {
+        _bounds = _gameManager.GetScreenBoundaries(this.gameObject);
+        _maxH = _bounds[1];
+        _maxV = _bounds[3];
+
+        _randomX = Random.Range(-_maxH, _maxH);
+        transform.position = new Vector3(_randomX, _maxV, 0.0f);
+    }
+
+    private void SetupGameObjects()
+    {
         if (GameObject.Find("Player") != null) _player = GameObject.Find("Player").GetComponent<Player>();
 
         _pf_mainWeapon = Resources.Load<GameObject>("Prefabs/Weapons/Laser");
@@ -41,23 +83,16 @@ public class Enemy_base : MonoBehaviour
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
         if (_gameManager == null) Debug.LogError("Enemy_base::Start() :: We have a problem. The gameManager is null");
 
-        _bounds = _gameManager.GetScreenBoundaries(this.gameObject);
-        _maxH = _bounds[1];
-        _maxV = _bounds[3];
-
-        _randomX = Random.Range(-_maxH, _maxH);
-        _lastMove = Vector3.down;
-        transform.position = new Vector3(_randomX, _maxV, 0.0f);
-        SetSpeed();
-        _curLife = 1f + (_gameManager.GetLevel() / 3f);
-
-        if (_curLife > _maxLife) { _curLife = _maxLife; }
-        _baseLife = _curLife;
-
         _e_animator = gameObject.GetComponent<Animator>();
         if (_e_animator != null) _e_animator.ResetTrigger("OnEnemyDeath");
         else Debug.LogError("Enemy_base::Start() :: Unable to find Animator component");
+
         _audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+        SetupAudioEffect();
+    }
+
+    private void SetupAudioEffect()
+    {
         if (_audioManager == null) Debug.LogError("Enemy_base::Start() :: We have a problem. The audioManager is null");
         else
         {
@@ -70,17 +105,6 @@ public class Enemy_base : MonoBehaviour
             _e_sounds.volume = 0.75f;
             _e_sounds.pitch = 0.35f;
         }
-        SetColor();
-        _firingCycle = FiringCycle();
-        StartCoroutine(_firingCycle);
-        _e_Thruster = new GameObject[2];
-        SetEffects("Thruster", _e_Thruster.Length);
-    }
-
-    void Update()
-    {
-        if (_spawnManager.IsPlayerDead()) { Debug.Log("Enemy_base::Update() :: Player is dead. Time for me to die."); Destroy(gameObject); }
-        if (gameObject.GetComponent<SpriteRenderer>().enabled) { MoveEnemy(); }
     }
 
     private void SetEffects(string effect, int count)
@@ -90,14 +114,10 @@ public class Enemy_base : MonoBehaviour
             case "Thruster":
                 for (int i = 0; i < count; i++)
                 {
-
                     _e_Thruster[i] = Instantiate(_spawnManager.GetEffect("Thruster"), transform.position, Quaternion.identity, transform);
                     _e_Thruster[i].transform.localPosition += new Vector3(-0.375f + (i * 0.375f), 2.5f, 0f);
-                    //_e_ThrusterB.transform.localPosition += new Vector3(0.375f, 2.5f, 0f);
                     _e_Thruster[i].transform.localScale = new Vector3(0.1f, 0.5f, 0f);
-                    //_e_Thruster[i].transform.localScale = new Vector3(0.1f, 0.5f, 0f);
                     _e_Thruster[i].transform.Rotate(new Vector3(-180f, 0f, 0f));
-                    //_e_ThrusterB.transform.Rotate(new Vector3(-180f, 0f, 0f));
                 }
                 break;
         }
@@ -107,7 +127,6 @@ public class Enemy_base : MonoBehaviour
     private void MoveEnemy()
     {
         float _randomH = Random.Range(0f, 100f);
-        transform.Translate(Vector3.down * _curSpd * Time.deltaTime);
         if (_randomH > 90f || (_randomH > 25f && _lastMove != Vector3.down))
         {
             float _randomDir = Random.Range(0f, 1f);
@@ -115,13 +134,13 @@ public class Enemy_base : MonoBehaviour
             {
                 if (_randomDir > 0.5f)
                 {
-                    transform.Translate(Vector3.left * _curSpd * Time.deltaTime);
+                    transform.Translate((Vector3.left + Vector3.down) * _curSpd * Time.deltaTime);
                     if (transform.position.x < -_maxH) transform.position = new Vector3(_maxH, transform.position.y, 0.0f);
                     _lastMove = Vector3.left;
                 }
                 else
                 {
-                    transform.Translate(Vector3.right * _curSpd * Time.deltaTime);
+                    transform.Translate((Vector3.right + Vector3.down) * _curSpd * Time.deltaTime);
                     if (transform.position.x > _maxH) transform.position = new Vector3(-_maxH, transform.position.y, 0.0f);
                     _lastMove = Vector3.right;
                 }
@@ -130,13 +149,13 @@ public class Enemy_base : MonoBehaviour
             {
                 if (_randomDir > 0.05f)
                 {
-                    transform.Translate(Vector3.left * _curSpd * Time.deltaTime);
+                    transform.Translate((Vector3.left + Vector3.down) * _curSpd * Time.deltaTime);
                     if (transform.position.x < -_maxH) transform.position = new Vector3(_maxH, transform.position.y, 0.0f);
                     _lastMove = Vector3.left;
                 }
                 else
                 {
-                    transform.Translate(Vector3.right * _curSpd * Time.deltaTime);
+                    transform.Translate((Vector3.right + Vector3.down) * _curSpd * Time.deltaTime);
                     if (transform.position.x > _maxH) transform.position = new Vector3(-_maxH, transform.position.y, 0.0f);
                     _lastMove = Vector3.right;
                 }
@@ -145,13 +164,13 @@ public class Enemy_base : MonoBehaviour
             {
                 if (_randomDir > 0.95f)
                 {
-                    transform.Translate(Vector3.left * _curSpd * Time.deltaTime);
+                    transform.Translate((Vector3.left + Vector3.down) * _curSpd * Time.deltaTime);
                     if (transform.position.x < -_maxH) transform.position = new Vector3(_maxH, transform.position.y, 0.0f);
                     _lastMove = Vector3.left;
                 }
                 else
                 {
-                    transform.Translate(Vector3.right * _curSpd * Time.deltaTime);
+                    transform.Translate((Vector3.right + Vector3.down) * _curSpd * Time.deltaTime);
                     if (transform.position.x > _maxH) transform.position = new Vector3(-_maxH, transform.position.y, 0.0f);
                     _lastMove = Vector3.right;
                 }
@@ -159,10 +178,11 @@ public class Enemy_base : MonoBehaviour
         }
         else
         {
+            transform.Translate(Vector3.down * _curSpd * Time.deltaTime);
             _lastMove = Vector3.down;
         }
 
-        if (transform.position.y < _maxV * -1.1)
+        if (transform.position.y < _maxV * -1.1 && gameObject.GetComponent<BoxCollider2D>().enabled)
         {
             _randomX = Random.Range(-_maxH, _maxH);
             transform.position = new Vector3(_randomX, _maxV, 0.0f);
@@ -171,7 +191,7 @@ public class Enemy_base : MonoBehaviour
         }
     }
 
-    IEnumerator FiringCycle()
+    private IEnumerator FiringCycle()
     {
         float _delay = Random.Range(3f, 6f);
         _delay -= (_curLife / 2f);
@@ -183,10 +203,8 @@ public class Enemy_base : MonoBehaviour
 
             if (_pf_mainWeapon != null)
             {
-                GameObject laserA = Instantiate(_pf_mainWeapon, transform.position + new Vector3(0.1f, -0.75f, 0), Quaternion.identity);
-                GameObject laserB = Instantiate(_pf_mainWeapon, transform.position + new Vector3(-0.1f, -0.75f, 0), Quaternion.identity);
-                if (laserA != null) { laserA.GetComponent<Laser>().ConfigureLaser("Enemy"); }
-                if (laserB != null) { laserB.GetComponent<Laser>().ConfigureLaser("Enemy"); }
+                _ = Instantiate(_pf_mainWeapon, transform.position + new Vector3(0.1f, -0.75f, 0), Quaternion.identity, transform);
+                _ = Instantiate(_pf_mainWeapon, transform.position + new Vector3(-0.1f, -0.75f, 0), Quaternion.identity, transform);
             }
         }
     }
@@ -205,10 +223,7 @@ public class Enemy_base : MonoBehaviour
         else if (_curLife <= 10f) colorize.color = new Color(1f, 0.666f, 0f, 1f);
     }
 
-    private void SetSpeed()
-    {
-        _curSpd = 2.0f + ((_gameManager.GetLevel() - 1f) / 3f);
-    }
+    private void SetSpeed() { _curSpd = 2.0f + ((_gameManager.GetLevel() - 1f) / 3f); }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -221,14 +236,20 @@ public class Enemy_base : MonoBehaviour
                 break;
             case "Laser":
                 Laser laser = other.transform.GetComponent<Laser>();
+                if (laser == null) { Debug.LogError("Enemy_base::OnTriggerEnter2D() :: Got a null laser component somehow"); }
+                float damage = laser.GetPower();
+
+                // Ignore other base enemy lasers
                 if (!laser.IsHostile("Enemy")) { break; }
 
-                float damage = 0;
-
-                if (laser != null) { damage = laser.GetPower(); }
-
+                // Absorb all other lasers
                 Destroy(other.gameObject);
-                TakeDamage(damage, true);
+
+                // Take a hit from the boss laser
+                if (!laser.IsHostile("Boss")) { TakeDamage(damage, false); }
+                // Take a hit from the player laser
+                else { TakeDamage(damage, true); }
+
                 break;
             case "Asteroid":
                 TakeDamage(_maxLife, false);
@@ -250,19 +271,15 @@ public class Enemy_base : MonoBehaviour
         {
             if (_player == null) Debug.LogError("Enemy_base::TakeDamage() :: Unable to find player object!");
             else if (_byPlayer) { _player.IncreaseScore((int)_baseLife + (int)_curSpd); }
+
             _e_animator.SetTrigger("OnEnemyDeath");
             gameObject.GetComponent<BoxCollider2D>().enabled = false;
-            foreach (GameObject _effect in _e_Thruster)
-            {
-                Destroy(_effect);
-            }
-            //Destroy(_e_ThrusterA);
-            //Destroy(_e_ThrusterB);
-            if (_firingCycle != null)
-            {
-                StopCoroutine(_firingCycle);
-            }
+
+            foreach (GameObject _effect in _e_Thruster) { Destroy(_effect); }
+
+            if (_firingCycle != null) { StopCoroutine(_firingCycle); }
             _firingCycle = null;
+
             AudioSource.PlayClipAtPoint(_e_sounds.clip, transform.position);
             Destroy(this.gameObject, 1f);
         }

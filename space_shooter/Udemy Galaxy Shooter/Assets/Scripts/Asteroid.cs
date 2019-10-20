@@ -7,7 +7,6 @@ public class Asteroid : MonoBehaviour
     private SpawnManager _spawnManager;
     private GameManager _gameManager;
 
-    [SerializeField]
     private Vector3 _direction;
 
     private float _health;
@@ -114,10 +113,9 @@ public class Asteroid : MonoBehaviour
         if (_what == "Laser")
         {
             Laser laser = other.transform.GetComponent<Laser>();
-            float damage = 0;
+            if (laser == null) { Debug.LogError("Asteroid::OnTriggerEnter2D() :: Got a null laser component somehow"); }
 
-            if (laser != null) { damage = laser.GetPower(); }
-
+            float damage = laser.GetPower();
             Destroy(other.gameObject);
             TakeDamage(damage);
         }
