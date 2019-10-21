@@ -214,7 +214,7 @@ public class SpawnManager : MonoBehaviour
                 if (_randSpawn <= 90f && !_playerDead)
                 {
                     float _randType = Random.Range(0f, 100f);
-                    if (_randType > 0f && (Time.time % _bossRate) > 15f) { _spawnObj = _enemySpawns.ContainsKey("Boss") ? _enemySpawns["Boss"] : null; }
+                    if (_randType > 90f && (Time.time % _bossRate) > 15f) { _spawnObj = _enemySpawns.ContainsKey("Boss") ? _enemySpawns["Boss"] : null; }
                     else { _spawnObj = _enemySpawns.ContainsKey("Enemy") ? _enemySpawns["Enemy"] : null; }
                 }
 

@@ -86,6 +86,7 @@ public class Enemy_boss : MonoBehaviour
                 _e_Shield.GetComponent<SpriteRenderer>().color -= new Color(0f, 0f, 0f, 0.6f);
 
                 _curShield = _gameManager.GetLevel() * 5f;
+                Debug.Log("Enemy_boss::SetEffects() :: Shield has " + _curShield + " points");
                 break;
         }
     }
@@ -247,7 +248,11 @@ public class Enemy_boss : MonoBehaviour
     {
         if (transform.position.y < (_maxV * 0.9))
         {
-            if (_curShield > damage) { _curShield -= damage; }
+            if (_curShield > damage)
+            {
+                _curShield -= damage;
+                damage = -1f;
+            }
             else if (_curShield > 0f)
             {
                 damage -= _curShield;

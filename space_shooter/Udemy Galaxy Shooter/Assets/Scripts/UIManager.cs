@@ -85,10 +85,7 @@ public class UIManager : MonoBehaviour
                     case "Level_Text": _levelText = Instantiate(_textObjects[textObj], transform); UpdateLevelText(_gameManager.GetLevel()); break;
                 }
             }
-            else
-            {
-                Debug.LogError("UIManager::ConfigObjects() :: Unable to find non-null " + textObj + " object");
-            }
+            else { Debug.LogError("UIManager::ConfigObjects() :: Unable to find non-null " + textObj + " object"); }
         }
 
         if (_imageObjects.ContainsKey("Lives_Display") && _imageObjects["Lives_Display"] != null)
@@ -99,17 +96,10 @@ public class UIManager : MonoBehaviour
                 : GameObject.Find("Lives_Display").GetComponent<Image>();
             InitLives();
         }
-        else
-        {
-            Debug.LogError("UIManager::ConfigObjects() :: Unable to find Lives_Display image");
-        }
+        else { Debug.LogError("UIManager::ConfigObjects() :: Unable to find Lives_Display image"); }
     }
 
-
-    public bool IsStarted()
-    {
-        return _uiLoaded;
-    }
+    public bool IsStarted() { return _uiLoaded; }
 
     private void Update()
     {
@@ -192,26 +182,21 @@ public class UIManager : MonoBehaviour
     public void UpdateBackground()
     {
         int val = Random.Range(0, 4);
-        Debug.Log("UIManager::UpdateBackground() :: Selected case " + val);
         switch (val)
         {
             case 0:
-                Debug.Log("UIManager::UpdateBackground() :: Flipping X axis");
                 FlipBackground(true, false);
                 break;
             case 1:
-                Debug.Log("UIManager::UpdateBackground() :: Flipping Y axis");
                 FlipBackground(false, true);
                 break;
             case 2:
             case 3:
-                Debug.Log("UIManager::UpdateBackground() :: Swapping sprites!");
                 int bg = Random.Range(0, _backgrounds.Count);
                 while (_background.sprite.name == _backgrounds[bg].name)
                 {
                     bg = Random.Range(0, _backgrounds.Count);
                 }
-                Debug.Log("UIManager::UpdateBackground() :: Old background is " + _background.sprite.name + " || New background is " + _backgrounds[bg].name);
                 _background.sprite = _backgrounds[bg];
                 break;
         }
@@ -250,10 +235,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    private void FlickerGameOver()
-    {
-        if (_is_GameOver) { GameOver.enabled = !GameOver.enabled; }
-    }
+    private void FlickerGameOver() { if (_is_GameOver) { GameOver.enabled = !GameOver.enabled; } }
 
     IEnumerator WaitForInput()
     {
@@ -264,10 +246,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void UpdateHighScore()
-    {
-        _highScoreText.text = "High Score:\n" + _scoreManager.UpdateHighScores(_score);
-    }
+    public void UpdateHighScore() { _highScoreText.text = "High Score:\n" + _scoreManager.UpdateHighScores(_score); }
 
     public void UpdateScore(int score)
     {
@@ -278,9 +257,5 @@ public class UIManager : MonoBehaviour
         UpdateLevelText(_gameManager.GetLevel());
     }
 
-    public void UpdateLevelText(int level)
-    {
-
-        _levelText.text = "Level: " + level;
-    }
+    public void UpdateLevelText(int level) { _levelText.text = "Level: " + level; }
 }
