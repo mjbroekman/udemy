@@ -21,14 +21,8 @@ public class Player : MonoBehaviour
         _hInput = Input.GetAxis("Horizontal");
         float _speed = _walkSpd;
         if (Input.GetKey(KeyCode.LeftShift)) { _speed *= 2f; }
-        if (_hInput < 0 || _hInput > 0)
-        {
-            _p_control.Move(new Vector3(_hInput * _speed * Time.deltaTime, 0f, 0f));
-        }
-        // get horizontal input
-        // define direction based on input
-        // move based on input
+        Vector3 _direction = new Vector3(_hInput, 0f, 0f);
+        _p_control.Move(_direction * _speed * Time.deltaTime);
         // get space for jump
-
     }
 }
