@@ -5,8 +5,10 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     private CharacterController _p_control;
+
     [SerializeField]
     private float _hInput;
+
     [SerializeField]
     private float _walkSpd;
 
@@ -22,7 +24,7 @@ public class Player : MonoBehaviour
         float _speed = _walkSpd;
         if (Input.GetKey(KeyCode.LeftShift)) { _speed *= 2f; }
         Vector3 _direction = new Vector3(_hInput, 0f, 0f);
-        _p_control.Move(_direction * _speed * Time.deltaTime);
-        // get space for jump
+        Vector3 _velocity = _direction * _speed;
+        _p_control.Move(_velocity * Time.deltaTime);
     }
 }
