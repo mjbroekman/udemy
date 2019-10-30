@@ -16,13 +16,16 @@ public class Player : MonoBehaviour
     private float _gravity;
 
     [SerializeField]
-    private Vector3 _direction;
-
-    [SerializeField]
     private Vector3 _velocity;
 
     [SerializeField]
     private float _jumpHeight;
+
+    [SerializeField]
+    private bool _can2Jump;
+
+    [SerializeField]
+    private float _speed;
 
     void Start()
     {
@@ -31,46 +34,59 @@ public class Player : MonoBehaviour
         _gravity = 1.0f;
         _jumpHeight = 15.0f;
         _velocity = Vector3.down;
+        _can2Jump = false;
     }
 
     void Update()
     {
-        _hInput = Input.GetAxis("Horizontal");
-        float _speed = _walkSpd;
+        Move();
+    }
 
-        // sprint
-        if (Input.GetKey(KeyCode.LeftShift))
+    private void Move()
+    {
+        float sideMove = Input.GetAxis("Horizontal");
+        bool jump = Input.GetKeyDown(KeyCode.Space);
+
+        // If the LeftShift is 'pressed', double speed for sprinting
+        if (Input.GetKey(KeyCode.LeftShift)) { _speed = _walkSpd * 2.0f; }
+        // Otherwise use our walking speed
+        else { _speed = _walkSpd; }
+
+        // Check if Space was pressed for a jump attempt
+        if (jump)
         {
-            _hInput *= 2.0f;
-        }
-
-        Debug.Log("Vertical velocity is " + _velocity.y);
-
-        // check to see if the character is touching the ground (isGrounded)
-        // if grounded, zero out vertical velocity 
-        if (_p_control.isGrounded)
-        {
-            Debug.Log("Player::Update() :: We are on solid ground.");
-            _direction = new Vector3(_hInput, 0.0f, 0.0f);
-            _velocity = _direction * _speed;
-
-            if (Input.GetKeyDown(KeyCode.Space))
+            // Player is on the ground, so let's jump
+            if (_p_control.isGrounded)
             {
-                _velocity.y = _jumpHeight;
+                _velocity = new Vector3(sideMove * _speed, _jumpHeight, 0.0f);
+                _can2Jump = true;
             }
-        }
-        // if not, apply gravity
-        else
-        {
-            Debug.Log("Player.Update() :: Apply gravity " + _gravity + " to vertical velocity " + _velocity.y);
-            _direction = new Vector3(_hInput, _velocity.y, 0.0f);
-            _velocity.y -= _gravity;
-            if (_velocity.y < 0f)
+            // Player is moving UP, so let's double jump
+            else if (_can2Jump && _velocity.y > 0.0f)
             {
-                Debug.Log("Player::Update() :: We are falling (negative Y velocity)");
+                _velocity = new Vector3(sideMove * _speed, _velocity.y - _gravity + (_jumpHeight * 1.5f), 0.0f);
+                _can2Jump = false;
             }
+            // Player is not on the ground and not moving up, so apply gravity
+            else { _velocity = new Vector3(sideMove * _speed, _velocity.y - _gravity, 0.0f); }
         }
+        // Check if we're on the ground
+        else if (_p_control.isGrounded)
+        {
+            _velocity = new Vector3(sideMove * _speed, -_gravity, 0.0f);
+        }
+        // Check to see if we bonked our head
+        else if ((_p_control.collisionFlags & CollisionFlags.Above) != 0)
+        {
+            // If we did bonk our head, start our initial downward fall
+            if (_velocity.y > 0.0f) { _velocity = new Vector3(sideMove * _speed, -0.1f, 0.0f); }
+            // Otherwise, just add gravity to our falling speed
+            else { _velocity = new Vector3(sideMove * _speed, _velocity.y - _gravity, 0.0f); }
+        }
+        // We got here because we are falling (a.k.a. not on the ground)
+        else { _velocity = new Vector3(sideMove * _speed, _velocity.y - _gravity, 0.0f); }
 
-        if (_velocity != Vector3.zero) { _p_control.Move(_velocity * Time.deltaTime); }
+        // Now let's actually _move_
+        _p_control.Move(_velocity * Time.deltaTime);
     }
 }
