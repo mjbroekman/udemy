@@ -7,7 +7,7 @@ public class Player : MonoBehaviour
     private CharacterController _p_control;
 
     [SerializeField]
-    private float _hInput;
+    private float sideMove;
 
     [SerializeField]
     private float _walkSpd;
@@ -27,6 +27,12 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _speed;
 
+    [SerializeField]
+    private int _coins;
+
+    [SerializeField]
+    private UIManager _uiManager;
+
     void Start()
     {
         _p_control = GetComponent<CharacterController>();
@@ -35,6 +41,7 @@ public class Player : MonoBehaviour
         _jumpHeight = 15.0f;
         _velocity = Vector3.down;
         _can2Jump = false;
+        _coins = 0;
     }
 
     void Update()
@@ -44,7 +51,7 @@ public class Player : MonoBehaviour
 
     private void Move()
     {
-        float sideMove = Input.GetAxis("Horizontal");
+        sideMove = Input.GetAxis("Horizontal");
         bool jump = Input.GetKeyDown(KeyCode.Space);
 
         // If the LeftShift is 'pressed', double speed for sprinting
@@ -88,5 +95,16 @@ public class Player : MonoBehaviour
 
         // Now let's actually _move_
         _p_control.Move(_velocity * Time.deltaTime);
+    }
+
+    public void AddCoins(int count)
+    {
+        _coins += count;
+        _uiManager.SetCoins(_coins);
+    }
+
+    public int GetCoins()
+    {
+        return _coins;
     }
 }
