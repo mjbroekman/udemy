@@ -38,10 +38,15 @@ public class Player : MonoBehaviour
         _p_control = GetComponent<CharacterController>();
         _walkSpd = 5.0f;
         _gravity = 1.0f;
-        _jumpHeight = 15.0f;
+        _jumpHeight = 25.0f;
         _velocity = Vector3.down;
         _can2Jump = false;
         _coins = 0;
+        _uiManager = GameObject.Find("Canvas").GetComponent<UIManager>();
+        if (_uiManager == null)
+        {
+            Debug.LogError("_uiManager is NULL");
+        }
     }
 
     void Update()
@@ -91,7 +96,20 @@ public class Player : MonoBehaviour
             else { _velocity = new Vector3(sideMove * _speed, _velocity.y - _gravity, 0.0f); }
         }
         // We got here because we are falling (a.k.a. not on the ground)
-        else { _velocity = new Vector3(sideMove * _speed, _velocity.y - _gravity, 0.0f); }
+        else
+        {
+            _velocity = new Vector3(sideMove * _speed, _velocity.y - _gravity, 0.0f);
+            if (transform.position.y < -100.0)
+            {
+                Debug.LogError("We fell too far. Game Over.");
+#if UNITY_EDITOR
+                if (UnityEditor.EditorApplication.isPlaying)
+                {
+                    UnityEditor.EditorApplication.isPlaying = false;
+                }
+#endif
+            }
+        }
 
         // Now let's actually _move_
         _p_control.Move(_velocity * Time.deltaTime);

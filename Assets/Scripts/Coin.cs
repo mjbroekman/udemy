@@ -22,8 +22,13 @@ public class Coin : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            other.transform.GetComponent<Player>().AddCoins(_value);
-            Destroy(this);
+            Player p = other.GetComponent<Player>();
+            if (p != null)
+            {
+                Debug.Log("Player collected a coin worth " + _value.ToString() + " monetary units.");
+                p.AddCoins(_value);
+            }
+            Destroy(this.gameObject);
         }
     }
 }

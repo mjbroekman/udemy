@@ -10,6 +10,8 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
+        _coinCounter.text = "Coins: ";
+
         InitCoins();
     }
 
@@ -24,6 +26,6 @@ public class UIManager : MonoBehaviour
 
     public void SetCoins(int coins)
     {
-        _coinCounter.text = "Coins: " + coins;
+        _coinCounter.text = "Coins: " + coins.ToString();
     }
 }
