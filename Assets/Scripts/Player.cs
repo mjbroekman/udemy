@@ -38,7 +38,7 @@ public class Player : MonoBehaviour
         _p_control = GetComponent<CharacterController>();
         _walkSpd = 5.0f;
         _gravity = 1.0f;
-        _jumpHeight = 25.0f;
+        _jumpHeight = 15.0f;
         _velocity = Vector3.down;
         _can2Jump = false;
         _coins = 0;
