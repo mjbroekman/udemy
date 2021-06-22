@@ -13,12 +13,21 @@ public class Player : MonoBehaviour
     private float _gravity = 9.81f;
 
     [SerializeField]
+    private float _jump;
+
+    [SerializeField]
+    private bool _isJumping;
+
+    [SerializeField]
     private Vector3 _velocity;
 
     // Start is called before the first frame update
     void Start()
     {
         _speed = 3.5f;
+        _jump = 15f;
+        _isJumping = false;
+
         _controller = GetComponent<CharacterController>();
         _velocity = Vector3.zero;
     }
@@ -26,20 +35,40 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Get user input for the direction of movement
-        foreach (KeyCode kcode in System.Enum.GetValues(typeof(KeyCode)))
-        {
-            if (Input.GetKey(kcode)) Debug.Log("KeyCode down: " + kcode);
-        }
-        Vector3 direction = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
-        
+        CalculateMovement();
+    }
+
+    void CalculateMovement()
+    {
+        float eastwest = Input.GetAxis("Horizontal");
+        float northsouth = Input.GetAxis("Vertical");
+        bool jump = Input.GetKeyDown(KeyCode.Space);
+
+        Vector3 direction = new Vector3(eastwest,0f, northsouth);
+
         // Apply speed to direction to get velocity
         _velocity = direction * _speed;
 
-        // Apply gravity to y-component of velocity
-        if (!_controller.isGrounded) _velocity.y -= _gravity;
+        if (jump && !_isJumping)
+        {
+            direction.y = _jump;
+            _isJumping = true;
+        }
+        else if ((_controller.collisionFlags & CollisionFlags.Below) != 0)
+        {
+            _isJumping = false;
+            direction.y = 0.0f;
+        }
+        else
+        {
+            _velocity.y -= _gravity;
+        }
+
+        // convert from localspace to worldspace
+        _velocity = transform.transform.TransformDirection(_velocity);
 
         // Move the player based on how much time has passed since the last update
         _controller.Move(_velocity * Time.deltaTime);
     }
+
 }
