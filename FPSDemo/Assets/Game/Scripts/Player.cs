@@ -21,12 +21,17 @@ public class Player : MonoBehaviour
     [SerializeField]
     private Vector3 _velocity;
 
+    [SerializeField]
+    private float _sensitivity;
+    
     // Start is called before the first frame update
     void Start()
     {
         _speed = 3.5f;
         _jump = 15f;
         _isJumping = false;
+
+        _sensitivity = 0.2f;
 
         _controller = GetComponent<CharacterController>();
         _velocity = Vector3.zero;
@@ -69,6 +74,11 @@ public class Player : MonoBehaviour
 
         // Move the player based on how much time has passed since the last update
         _controller.Move(_velocity * Time.deltaTime);
+    }
+
+    public float GetSensitivity()
+    {
+        return _sensitivity;
     }
 
 }
