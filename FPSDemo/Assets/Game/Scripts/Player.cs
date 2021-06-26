@@ -31,16 +31,35 @@ public class Player : MonoBehaviour
         _jump = 15f;
         _isJumping = false;
 
-        _sensitivity = 0.2f;
+        // user setting
+        _sensitivity = 1f;
 
         _controller = GetComponent<CharacterController>();
         _velocity = Vector3.zero;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     // Update is called once per frame
     void Update()
     {
-        CalculateMovement();
+        bool hitEscape = Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace);
+
+        if (Cursor.lockState == CursorLockMode.Locked) {
+            CalculateMovement();
+            if (hitEscape)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+        }
+        else if (Cursor.lockState == CursorLockMode.None)
+        {
+            if (hitEscape) { 
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+        }
     }
 
     void CalculateMovement()
