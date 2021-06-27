@@ -46,6 +46,17 @@ public class Player : MonoBehaviour
         bool hitEscape = Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace);
 
         if (Cursor.lockState == CursorLockMode.Locked) {
+            //if left click
+            // cast ray from center of main camera
+            if (Input.GetMouseButtonDown(0))
+            {
+                Ray rayOrigin = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
+                if (Physics.Raycast(rayOrigin, Mathf.Infinity))
+                {
+                    Debug.Log("Raycast collision detected");
+                }
+            }
+
             CalculateMovement();
             if (hitEscape)
             {
