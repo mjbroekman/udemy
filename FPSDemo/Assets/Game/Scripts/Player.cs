@@ -23,6 +23,9 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private float _sensitivity;
+
+    [SerializeField]
+    private GameObject _weapon;
     
     // Start is called before the first frame update
     void Start()
@@ -35,6 +38,8 @@ public class Player : MonoBehaviour
         _sensitivity = 1f;
 
         _controller = GetComponent<CharacterController>();
+        _weapon = GameObject.Find("Weapon");
+
         _velocity = Vector3.zero;
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
@@ -46,7 +51,9 @@ public class Player : MonoBehaviour
         bool hitEscape = Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace);
 
         if (Cursor.lockState == CursorLockMode.Locked) {
-            if (Input.GetMouseButtonDown(0)) ShootWeapon();
+            if (Input.GetMouseButton(0)) ShootWeapon();
+            else StopShooting();
+
             CalculateMovement();
             if (hitEscape)
             {
@@ -69,10 +76,26 @@ public class Player : MonoBehaviour
         // cast ray from center of main camera
         Ray rayOrigin = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hitInfo;
+        ParticleSystem flash = _weapon.GetComponentInChildren<ParticleSystem>(true);
+        if (! flash.isEmitting)
+        {
+            flash.playOnAwake = true;
+            flash.Play();
+        }
         if (Physics.Raycast(rayOrigin, out hitInfo))
         {
             // Do this if we're in the Unity Editor
             Debug.Log("Raycast collision detected with " + hitInfo.transform.name);
+        }
+    }
+
+    void StopShooting()
+    {
+        ParticleSystem flash = _weapon.GetComponentInChildren<ParticleSystem>(true);
+        if (flash.isEmitting || flash.isPlaying)
+        {
+            flash.playOnAwake = false;
+            flash.Stop();
         }
     }
 
