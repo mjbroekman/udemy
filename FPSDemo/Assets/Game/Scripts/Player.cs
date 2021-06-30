@@ -46,19 +46,7 @@ public class Player : MonoBehaviour
         bool hitEscape = Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace);
 
         if (Cursor.lockState == CursorLockMode.Locked) {
-            //if left click
-            // cast ray from center of main camera
-            if (Input.GetMouseButtonDown(0))
-            {
-                Ray rayOrigin = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-                RaycastHit hitInfo;
-                if (Physics.Raycast(rayOrigin, out hitInfo))
-                {
-                    // Do this if we're in the Unity Editor
-                    Debug.Log("Raycast collision detected with " + hitInfo.transform.name);
-                }
-            }
-
+            if (Input.GetMouseButtonDown(0)) ShootWeapon();
             CalculateMovement();
             if (hitEscape)
             {
@@ -72,6 +60,19 @@ public class Player : MonoBehaviour
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
             }
+        }
+    }
+
+    void ShootWeapon()
+    {
+        //if left click
+        // cast ray from center of main camera
+        Ray rayOrigin = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        RaycastHit hitInfo;
+        if (Physics.Raycast(rayOrigin, out hitInfo))
+        {
+            // Do this if we're in the Unity Editor
+            Debug.Log("Raycast collision detected with " + hitInfo.transform.name);
         }
     }
 
