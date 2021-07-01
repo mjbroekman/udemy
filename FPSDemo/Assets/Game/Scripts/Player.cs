@@ -26,7 +26,10 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private GameObject _weapon;
-    
+
+    [SerializeField]
+    private GameObject _hitMarkerPrefab;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -39,6 +42,7 @@ public class Player : MonoBehaviour
 
         _controller = GetComponent<CharacterController>();
         _weapon = GameObject.Find("Weapon");
+        _hitMarkerPrefab = Resources.Load<GameObject>("Effects/Hit_Marker");
 
         _velocity = Vector3.zero;
         Cursor.visible = false;
@@ -86,6 +90,11 @@ public class Player : MonoBehaviour
         {
             // Do this if we're in the Unity Editor
             Debug.Log("Raycast collision detected with " + hitInfo.transform.name);
+            // instantiate the hit marker
+            GameObject _tempMarker = Instantiate(_hitMarkerPrefab, hitInfo.point, Quaternion.LookRotation(hitInfo.normal));
+            // Have the marker destroy itself to make sure we clean up objects nicely
+            Destroy(_tempMarker, 0.15f);
+
         }
     }
 

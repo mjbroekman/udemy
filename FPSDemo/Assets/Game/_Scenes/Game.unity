@@ -1270,6 +1270,8 @@ MonoBehaviour:
   _isJumping: 0
   _velocity: {x: 0, y: 0, z: 0}
   _sensitivity: 0
+  _weapon: {fileID: 0}
+  _hitMarkerPrefab: {fileID: 0}
 --- !u!143 &1761937659
 CharacterController:
   m_ObjectHideFlags: 0
