@@ -30,6 +30,12 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject _hitMarkerPrefab;
 
+    [SerializeField]
+    private AudioClip _weaponFx;
+
+    [SerializeField]
+    private AudioSource _weaponFxSrc;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -43,6 +49,8 @@ public class Player : MonoBehaviour
         _controller = GetComponent<CharacterController>();
         _weapon = GameObject.Find("Weapon");
         _hitMarkerPrefab = Resources.Load<GameObject>("Effects/Hit_Marker");
+        _weaponFx = Resources.Load<AudioClip>("Sounds/Shoot_Sound");
+        _weaponFxSrc = GetComponent<AudioSource>();
 
         _velocity = Vector3.zero;
         Cursor.visible = false;
@@ -81,9 +89,10 @@ public class Player : MonoBehaviour
         Ray rayOrigin = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hitInfo;
         ParticleSystem flash = _weapon.GetComponentInChildren<ParticleSystem>(true);
+        ParticleSystem.MainModule flashMain = flash.main;
         if (! flash.isEmitting)
         {
-            flash.playOnAwake = true;
+            flashMain.playOnAwake = true;
             flash.Play();
         }
         if (Physics.Raycast(rayOrigin, out hitInfo))
@@ -94,18 +103,28 @@ public class Player : MonoBehaviour
             GameObject _tempMarker = Instantiate(_hitMarkerPrefab, hitInfo.point, Quaternion.LookRotation(hitInfo.normal));
             // Have the marker destroy itself to make sure we clean up objects nicely
             Destroy(_tempMarker, 0.15f);
-
+        }
+        if (!_weaponFxSrc.isPlaying)
+        {
+            Debug.Log("Fx is not playing, start playing it you goober." + _weaponFx);
+            _weaponFxSrc.clip = _weaponFx;
+            _weaponFxSrc.Play();
         }
     }
 
     void StopShooting()
     {
         ParticleSystem flash = _weapon.GetComponentInChildren<ParticleSystem>(true);
+        ParticleSystem.MainModule flashMain = flash.main;
+
         if (flash.isEmitting || flash.isPlaying)
         {
-            flash.playOnAwake = false;
+            flashMain.playOnAwake = false;
             flash.Stop();
         }
+        Debug.Log("Fx is playing, cut it out you goober." + _weaponFxSrc);
+
+        if (_weaponFxSrc.isPlaying) _weaponFxSrc.Stop();
     }
 
     void CalculateMovement()
