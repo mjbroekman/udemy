@@ -45,6 +45,7 @@ public class Player : MonoBehaviour
     private float _lastReload;
     private float _weaponSpeed;
     private float _lastShot;
+    private int _money;
 
     public float ReloadTime { get => _reloadTime; set => _reloadTime = value; }
     public bool IsReloading { get => _isReloading; set => _isReloading = value; }
@@ -58,6 +59,7 @@ public class Player : MonoBehaviour
     public float Speed { get => _speed; set => _speed = value; }
     public float Gravity { get => _gravity; set => _gravity = value; }
     public float Jump { get => _jump; set => _jump = value; }
+    public int Money { get => _money; set => _money = value; }
 
     // Start is called before the first frame update
     void Start()
@@ -72,6 +74,7 @@ public class Player : MonoBehaviour
         WeaponSpeed = 0.1f;
         LastShot = 0;
         _velocity = Vector3.zero;
+        Money = 0;
 
         // user setting
         Sensitivity = 1f;
@@ -86,6 +89,7 @@ public class Player : MonoBehaviour
 
         // Give the player a full clip to start
         SetAmmo(MaxAmmo);
+        SetCash(Money);
 
         // Get all the fun resources to make sparkly bits and noises.
         _weapon = GameObject.Find("Weapon");
@@ -146,6 +150,22 @@ public class Player : MonoBehaviour
     {
         CurrentAmmo = newAmmo;
         _uiManager.SetAmmo(CurrentAmmo);
+    }
+
+    public void AddAmmo(int newAmmo)
+    {
+        SetAmmo(CurrentAmmo + newAmmo);
+    }
+
+    void SetCash(int newCash)
+    {
+        Money = newCash;
+        _uiManager.SetCash(Money);
+    }
+
+    public void AddCash(int newCash)
+    {
+        SetCash(Money + newCash);
     }
 
     void ShootWeapon()
