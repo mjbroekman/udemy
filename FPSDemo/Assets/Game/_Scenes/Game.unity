@@ -1831,6 +1831,67 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!1001 &2008715542
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 2079748986}
+    m_Modifications:
+    - target: {fileID: 1668492823740794, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
+      propertyPath: m_Name
+      value: Coin_Particles
+      objectReference: {fileID: 0}
+    - target: {fileID: 4284969175245006, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4284969175245006, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4284969175245006, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4284969175245006, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4284969175245006, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4284969175245006, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4284969175245006, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4284969175245006, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4284969175245006, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4284969175245006, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4284969175245006, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 199449227183991024, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7eff0c56ac395a44290fbcfecbd9abf7, type: 3}
 --- !u!1001 &2079748980
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1964,6 +2025,11 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.53762716
   m_Center: {x: -0.0004478097, y: -0.34870452, z: 0.000000059604645}
+--- !u!4 &2079748986 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4057004039843154, guid: 93fb048d0136f084cb1f783ca99e5ea7, type: 3}
+  m_PrefabInstance: {fileID: 2079748980}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &2079748989
 MonoBehaviour:
   m_ObjectHideFlags: 0
