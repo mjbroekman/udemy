@@ -7,6 +7,9 @@ TagManager:
   - AmmoCounter
   - CashCounter
   - Coin
+  - Inventory
+  - Money
+  - WeaponFlash
   layers:
   - Default
   - TransparentFX

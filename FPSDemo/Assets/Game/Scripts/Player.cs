@@ -173,7 +173,6 @@ public class Player : MonoBehaviour
         //if left click
         // cast ray from center of main camera
         Ray rayOrigin = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        RaycastHit hitInfo;
 
         // Set up the weapon muzzle flash particle system.
         ParticleSystem flash = _weapon.GetComponentInChildren<ParticleSystem>(true);
@@ -208,7 +207,7 @@ public class Player : MonoBehaviour
         SetAmmo(CurrentAmmo - 1);
 
         // Raycast to see if we hit something worthwhile
-        if (Physics.Raycast(rayOrigin, out hitInfo))
+        if (Physics.Raycast(rayOrigin, out RaycastHit hitInfo))
         {
             // Do this if we're in the Unity Editor
             Debug.Log("Raycast collision detected with " + hitInfo.transform.name);
