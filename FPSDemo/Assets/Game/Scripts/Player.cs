@@ -93,6 +93,7 @@ public class Player : MonoBehaviour
 
         // Get all the fun resources to make sparkly bits and noises.
         _weapon = GameObject.Find("Weapon");
+        _weapon.SetActive(false);
         _weaponFx = Resources.Load<AudioClip>("Sounds/Shoot_Sound");
         _weaponFxSrc = GetComponent<AudioSource>();
         _hitMarkerPrefab = Resources.Load<GameObject>("Effects/Hit_Marker");
@@ -118,7 +119,7 @@ public class Player : MonoBehaviour
         // If we're locked into the game screen, allow the player to do stuff
         if (Cursor.lockState == CursorLockMode.Locked) {
             // If the player is pressing Mouse1 AND we're not in our reload delay AND we're not in our weapon firing delay, shoost
-            if (Input.GetMouseButton(0) && Time.time > (LastReload + ReloadTime) && Time.time > (LastShot + WeaponSpeed))
+            if (Input.GetMouseButton(0) && Time.time > (LastReload + ReloadTime) && Time.time > (LastShot + WeaponSpeed) && _weapon.activeSelf)
             {
                 IsReloading = false;
                 ShootWeapon();
@@ -166,6 +167,11 @@ public class Player : MonoBehaviour
     public void AddCash(int newCash)
     {
         SetCash(Money + newCash);
+    }
+
+    public void EnableWeapons()
+    {
+        _weapon.SetActive(true);
     }
 
     void ShootWeapon()
