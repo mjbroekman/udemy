@@ -219,6 +219,11 @@ public class Player : MonoBehaviour
             Debug.Log("Raycast collision detected with " + hitInfo.transform.name);
             // instantiate the hit marker
             GameObject _tempMarker = Instantiate(_hitMarkerPrefab, hitInfo.point, Quaternion.LookRotation(hitInfo.normal));
+            if (hitInfo.transform.name.Equals("Wooden_Crate"))
+            {
+                Destructible crate = hitInfo.transform.GetComponent<Destructible>();
+                if (crate != null) crate.DestroyCrate();
+            }
             // Have the marker destroy itself to make sure we clean up objects nicely
             Destroy(_tempMarker, 0.15f);
         }

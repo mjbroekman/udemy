@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 33000013523883360}
   - component: {fileID: 23000013730734082}
   - component: {fileID: 65757486843940532}
+  - component: {fileID: 5567714599504568364}
   m_Layer: 0
   m_Name: Wooden_Crate
   m_TagString: Untagged
@@ -26,7 +27,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1000011275823026}
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 6.189831, y: 0.0011901665, z: 9.426479}
   m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
   m_Children: []
@@ -95,3 +96,15 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 121.772705, y: 102.35167, z: 101.00458}
   m_Center: {x: 0.09588623, y: 51.056816, z: -0.0934124}
+--- !u!114 &5567714599504568364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000011275823026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 170276207031ab0419ea632ef831d62a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
