@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 2079748982}
-  m_IndirectSpecularColor: {r: 0.4484291, g: 0.49846458, b: 0.5756287, a: 1}
+  m_IndirectSpecularColor: {r: 0.16937378, g: 0.21262275, b: 0.29083794, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -720,6 +720,7 @@ GameObject:
   - component: {fileID: 595586253}
   - component: {fileID: 595586252}
   - component: {fileID: 595586251}
+  - component: {fileID: 595586254}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -793,6 +794,23 @@ Transform:
   m_Father: {fileID: 509627958}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &595586254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 595586250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9a305e18de0c04dbd257a21cd47087, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sharedProfile: {fileID: 11400000, guid: 8d2ca6b12d0037b40915133e5e35693e, type: 2}
+  isGlobal: 0
+  blendDistance: 0
+  weight: 1
+  priority: 0
 --- !u!1 &681367146
 GameObject:
   m_ObjectHideFlags: 0
@@ -2306,8 +2324,8 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 0.06741722, g: 0.20777816, b: 0.9528302, a: 1}
-  m_Intensity: 2.81
-  m_Range: 5
+  m_Intensity: 0.85
+  m_Range: 24.58488
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
@@ -3966,7 +3984,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 108352890995646114, guid: 93fb048d0136f084cb1f783ca99e5ea7, type: 3}
       propertyPath: m_Intensity
-      value: 0.13
+      value: 0.73
       objectReference: {fileID: 0}
     - target: {fileID: 199145886332745570, guid: 93fb048d0136f084cb1f783ca99e5ea7, type: 3}
       propertyPath: m_Materials.Array.size
