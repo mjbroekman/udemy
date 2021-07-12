@@ -18,10 +18,10 @@ MonoBehaviour:
     value: 1
   intensity:
     overrideState: 1
-    value: 41.4
+    value: 15.47
   threshold:
     overrideState: 1
-    value: 21.29
+    value: 33.6
   softKnee:
     overrideState: 0
     value: 0.5
@@ -35,7 +35,7 @@ MonoBehaviour:
     overrideState: 0
     value: 0
   color:
-    overrideState: 0
+    overrideState: 1
     value: {r: 1, g: 1, b: 1, a: 1}
   fastMode:
     overrideState: 0
@@ -68,7 +68,7 @@ MonoBehaviour:
     value: 0
   color:
     overrideState: 1
-    value: {r: 0, g: 0, b: 0, a: 1}
+    value: {r: 0.04650232, g: 0.13154049, b: 0.8962264, a: 1}
   center:
     overrideState: 1
     value: {x: 0.5, y: 0.5}
@@ -106,7 +106,7 @@ MonoBehaviour:
   active: 1
   enabled:
     overrideState: 1
-    value: 1
+    value: 0
   colored:
     overrideState: 0
     value: 1
@@ -238,14 +238,14 @@ MonoBehaviour:
     overrideState: 1
     value: 3.8
   colorFilter:
-    overrideState: 1
-    value: {r: 1, g: 1, b: 1, a: 1}
+    overrideState: 0
+    value: {r: 1, g: 0.7783019, b: 0.7783019, a: 1}
   hueShift:
     overrideState: 0
     value: -0
   saturation:
-    overrideState: 1
-    value: 7.5
+    overrideState: 0
+    value: -18.8
   brightness:
     overrideState: 0
     value: 0
@@ -253,8 +253,8 @@ MonoBehaviour:
     overrideState: 1
     value: 0.19
   contrast:
-    overrideState: 1
-    value: 0.4
+    overrideState: 0
+    value: -51.2
   mixerRedOutRedIn:
     overrideState: 0
     value: 100
@@ -1575,10 +1575,10 @@ MonoBehaviour:
     value: 1
   aperture:
     overrideState: 1
-    value: 10.2
+    value: 32
   focalLength:
-    overrideState: 0
-    value: 50
+    overrideState: 1
+    value: 25
   kernelSize:
     overrideState: 0
     value: 1
@@ -1594,12 +1594,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b77c5407dc277943b591ade9e6b18c5, type: 3}
   m_Name: LensDistortion
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   enabled:
     overrideState: 1
-    value: 1
+    value: 0
   intensity:
-    overrideState: 1
+    overrideState: 0
     value: 0
   intensityX:
     overrideState: 0
@@ -1637,7 +1637,7 @@ MonoBehaviour:
     value: 1
   intensity:
     overrideState: 1
-    value: 1.02
+    value: 0.45
   color:
     overrideState: 0
     value: {r: 0, g: 0, b: 0, a: 1}
@@ -1655,7 +1655,7 @@ MonoBehaviour:
     value: -12
   thicknessModifier:
     overrideState: 1
-    value: 2.69
+    value: 1.72
   directLightingStrength:
     overrideState: 0
     value: 0
